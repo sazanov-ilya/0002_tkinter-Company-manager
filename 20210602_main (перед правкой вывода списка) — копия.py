@@ -203,12 +203,14 @@ class Company(tk.Toplevel):
 
 # Класс формы добавления компании
 class CompanyNew(Company):
-    def __init__(self):  # Конструктор
+    def __init__(self): # Конструктор
         super().__init__()
         self.init_edit()
-        self.main = app  # Передаем класс Main
+        #self.main = app  # Передаем класс Main
         self.db = db  # Передаем класс DB
-        self.companies = companies
+        #self.companies = companies
+        #self.companies = companies
+        #self.company = company
 
     def init_edit(self):
         self.title('Добавить компанию')
@@ -232,9 +234,7 @@ class CompanyNew(Company):
                 if (answer):  # Если True
                     self.company_update_by_name(company_name, company_description)
                     self.company_clear()
-                    # Перевыводим класс компаний
-                    #self.main.open_companies()
-                    self.companies.companies_show()
+                    #self.companies.companies_show()
                 elif (answer is None):  # Если None
                     # Имитация клмка по btn_cancel
                     self.btn_cancel.invoke()
@@ -243,15 +243,10 @@ class CompanyNew(Company):
                 answer = mb.askyesno(title='Данные сохранены', message='Еще новый клиент?')
                 if (answer):  # Если True
                     self.company_clear()
-                    # Перевыводим класс компаний
-                    #self.main.open_companies()
-                    self.companies.companies_show()
                 else:  # Если False
                     # Имитация клмка по btn_cancel
                     self.btn_cancel.invoke()
-                    # Перевыводим класс компаний
-                    #self.main.open_companies()
-                    self.companies.companies_show()
+
     def company_get_by_name(self, company_name):
         company_name = (company_name.lower(),)
         self.db.c.execute(
@@ -411,7 +406,7 @@ if __name__ == '__main__':
     db = DB()  # Добавляем класс DB возможности добавления в другие классы
     #companies = Companies()
     app = Main(root)  # Добавляем класс Main ...
-    companies = Companies()
+    #companies = Companies()
     #company = Company()
     app.pack()
     root.title("Что сделано")
