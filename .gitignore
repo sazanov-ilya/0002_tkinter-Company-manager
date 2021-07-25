@@ -1,1 +1,14 @@
-/#copy/
+# вложеные каталоги .idea
+.idea/
+
+__pycache__/
+img/
+
+
+# файл git.txt
+git.txt
+
+.gitignore
+
+# файл БД
+сompleted_work.db
