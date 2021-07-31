@@ -124,4 +124,8 @@ if __name__ == '__main__':
     root.title("База списка подключений")
     root.geometry("700x450+300+200")
     # root.resizable(False, False)
+
+    root.event_add('<<Paste>>', '<Control-igrave>')
+    root.event_add("<<Copy>>", "<Control-ntilde>")
+
     root.mainloop()

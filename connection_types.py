@@ -1,3 +1,4 @@
+import ctypes
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as mb
@@ -13,10 +14,7 @@ connection_types_filter_dict = {'connection_type_name': '', 'connection_type_des
 
 
 class ConnectionTypes(tk.Frame):
-    '''
-    Базовый класс для типов подключения, меню и список типов подключения
-    '''
-
+    """ Базовый класс для типов подключения, меню и список типов подключения """
     def __init__(self, root, app):
         super().__init__(root)
         self.init_connection_types()
@@ -88,9 +86,7 @@ class ConnectionTypes(tk.Frame):
         # frm_toolbar.pack(side=tk.TOP, fill=tk.X)
 
     def show_connection_types(self):
-        '''
-        Процедура перезаполнения списка тиов подключения согласно данных БД и фильтров
-        '''
+        """ Процедура перезаполнения списка тиов подключения согласно данных БД и фильтров """
         # очистка таблицы
         [self.connection_types_list.delete(i) for i in self.connection_types_list.get_children()]
         # получаем данные согласно фильтров
@@ -101,12 +97,10 @@ class ConnectionTypes(tk.Frame):
         [self.connection_types_list.insert('', 'end', values=row) for row in data]
 
     def delete_connection_types(self):
-        '''
-        Процедура удаления выбранных типов подключения
-        '''
+        """ Процедура удаления выбранных типов подключения """
         if (self.connection_types_list.focus() != ''):
             # Цикл удаление нескольких записей
-#            [ids.append(row) for row in self.#            [ids.append(row) for row in self._list.selection()]_list.selection()]
+            # [ids.append(row) for row in self.[ids.append(row) for row in self._list.selection()]_list.selection()]
 
             ids = []  # кортеж id выделенных элементов
             for selection_item in self.connection_types_list.selection():
@@ -126,18 +120,15 @@ class ConnectionTypes(tk.Frame):
             mb.showwarning('Предупреждение', 'Выберите тип подключения')
 
     def open_new_connection_type(self):
-        '''
-        Открываем форму ввода нового типа подключения
-        '''
+        """ Открываем форму ввода нового типа подключения """
         NewConnectionType(self.app)
 
     def save_new_connection_type(self, connection_type_name, connection_type_description):
-        '''
-        Процедура сохранения нового типа подключения
+        """ Процедура сохранения нового типа подключения
         :param connection_type_name: Название тпа подключения
         :param connection_type_description: Комментарий для типа подключения
         :return: none
-        '''
+        """
         if (len(connection_type_name) == 0):
             mb.showwarning("Предупреждение", "Требуется ввести тип подключения")
             return 'clear'
@@ -165,43 +156,35 @@ class ConnectionTypes(tk.Frame):
                     return 'cancel'
 
     def open_updade_connection_type(self):
-        '''
-        Открываем окно для обновления выбранного типа подключения
-        '''
+        """ Открываем окно для обновления выбранного типа подключения """
         if (self.connection_types_list.focus() != ''):
             UpdateConnectionType(self.app)
         else:
             mb.showwarning('Предупреждение', 'Выберите тип подключения')
 
     def open_connection_type_filter(self):
-        '''
-        Открываем форму ввода фильтров скиска типов подключения
-        :return:
-        '''
+        """ Открываем форму ввода фильтров скиска типов подключения """
         FilterConnectionTypes(self.app)
 
     def apply_connection_type_filter(self, connection_type_name, connection_type_description):
-        '''
-        Процедура фильтрации по введенным типу подключения и описанию
+        """ Процедура фильтрации по введенным типу подключения и описанию
         :param connection_type_name: Название типа подключения
         :param connection_type_description: Описание типа подключения
         :return none
-        '''
+        """
         connection_types_filter_dict['connection_type_name'] = connection_type_name  # сохраняем фильтр в словарь
         connection_types_filter_dict['connection_type_description'] = connection_type_description
         self.show_connection_types()  # перезегружаем список
 
     def clear_connection_type_filter(self):
+        """ Процедура очистки фильтров типов подключения """
         for key in connection_types_filter_dict:
             connection_types_filter_dict[key] = ''  # обнуляем ключи
             self.show_connection_types()     # перезегружаем список компаний
 
 
 class ConnectionType(tk.Toplevel):
-    '''
-    Базовый класс формы типа подключения
-    '''
-
+    """ Базовый класс формы типа подключения """
     def __init__(self, app):
         super().__init__()
         self.init_connection_type()
@@ -222,12 +205,14 @@ class ConnectionType(tk.Toplevel):
         lbl_connection_type_name.place(x=50, y=20)
         self.ent_connection_type_name = ttk.Entry(self)
         self.ent_connection_type_name.place(x=200, y=20, width=180)
+        self.ent_connection_type_name.bind("<Control-KeyPress>", self.keys)
         self.ent_connection_type_name.focus()
 
         lbl_connection_type_description = tk.Label(self, text='Описание')
         lbl_connection_type_description.place(x=50, y=50)
         self.txt_connection_type_description = tk.Text(self)
         self.txt_connection_type_description.place(x=200, y=50, width=180, height=100)
+        self.txt_connection_type_description.bind("<Control-KeyPress>", self.keys)
 
         # Полоса прокрутки
         scroll = tk.Scrollbar(self, command=self.txt_connection_type_description.yview)
@@ -235,18 +220,38 @@ class ConnectionType(tk.Toplevel):
         scroll.place(x=380, y=50, height=100)
         self.txt_connection_type_description.configure(yscrollcommand=scroll.set)
 
-        self.btn_cancel = ttk.Button(self, text='Закрыть', command=self.destroy)
+        self.btn_cancel = ttk.Button(self, text='Отмена', command=self.destroy)
         self.btn_cancel.place(x=305, y=160)
 
     def clear_connection_type(self):
+        """ Процедура очистки полей формы """
         self.ent_connection_type_name.delete(0, tk.END)
         self.txt_connection_type_description.delete(1.0, tk.END)
 
+    @staticmethod  # статический метод
+    def is_ru_lang_keyboard():
+        """ Проверка текущей раскладки ввода на RU """
+        u = ctypes.windll.LoadLibrary("user32.dll")
+        pf = getattr(u, "GetKeyboardLayout")
+        return hex(pf(0)) == '0x4190419'
+
+    def keys(self, event):
+        """ Определяем метод keys() с учетом раскладки """
+        if self.is_ru_lang_keyboard():
+            if event.keycode == 86:
+                event.widget.event_generate("<<Paste>>")
+            if event.keycode == 67:
+                event.widget.event_generate("<<Copy>>")
+            if event.keycode == 88:
+                event.widget.event_generate("<<Cut>>")
+            if event.keycode == 65535:
+                event.widget.event_generate("<<Clear>>")
+            if event.keycode == 65:
+                event.widget.event_generate("<<SelectAll>>")
+
 
 class NewConnectionType(ConnectionType):
-    '''
-    Класс формы добавления подключения
-    '''
+    """ Класс формы добавления подключения """
     def __init__(self, app):  # Конструктор
         super().__init__(app)
         self.init_new_connection_type()
@@ -264,6 +269,7 @@ class NewConnectionType(ConnectionType):
         # ))
 
     def save_new_connection_type_action(self):
+        """ Сохранение нового типа подключения - действие """
         action = self.app.connection_types.save_new_connection_type(
             self.ent_connection_type_name.get(), self.txt_connection_type_description.get('1.0', tk.END)
         )
@@ -278,10 +284,7 @@ class NewConnectionType(ConnectionType):
 
 
 class UpdateConnectionType(ConnectionType):
-    '''
-    Класс формы обновления подключений
-    '''
-
+    """ Класс формы обновления подключений """
     def __init__(self, app):  # Конструктор
         super().__init__(app)
         self.init_update_connection_type()
@@ -289,7 +292,6 @@ class UpdateConnectionType(ConnectionType):
         #self.db = db.DB()  # Передаем класс DB
         self.get_connection_type_for_update()
         # self.connection_types = connection_types
-
 
     def init_update_connection_type(self):
         self.title('Обновить подключение')
@@ -306,7 +308,7 @@ class UpdateConnectionType(ConnectionType):
         btn_save.bind('<Button-1>', lambda event: self.destroy(), add='+')  # вешаем доп событие на кнопку
 
     def get_connection_type_for_update(self):
-        ''' Процедура получения и вывода на форму данных выделенной строки '''
+        """ Процедура получения и вывода на форму данных выделенной строки """
         data = self.app.db.get_connection_type_by_id(self.app.connection_types.connection_types_list.set(
             self.app.connection_types.connection_types_list.selection()[0], '#1'),)
         # Выводим значения в поля формы
@@ -315,10 +317,7 @@ class UpdateConnectionType(ConnectionType):
 
 
 class FilterConnectionTypes(tk.Toplevel):
-    '''
-    Класс формы фильльтра для отображения списка подключений
-    '''
-
+    """ Класс формы фильльтра для отображения списка подключений """
     def __init__(self, app):
         super().__init__()
 
@@ -341,6 +340,7 @@ class FilterConnectionTypes(tk.Toplevel):
         self.ent_connection_type_name = ttk.Entry(self)
         self.ent_connection_type_name.place(x=120, y=20, width=180)
         self.ent_connection_type_name.insert(0, connection_types_filter_dict.get('connection_type_name', ''))  # имя
+        self.ent_connection_type_name.bind("<Control-KeyPress>", self.keys)
         self.ent_connection_type_name.focus()
 
         lbl_connection_type_description = tk.Label(self, text='Описание')
@@ -349,6 +349,7 @@ class FilterConnectionTypes(tk.Toplevel):
         self.ent_connection_type_description.place(x=120, y=50, width=180)
         self.ent_connection_type_description.insert(0, connection_types_filter_dict.get('connection_type_description', '')
                                                     )  # описание
+        self.ent_connection_type_description.bind("<Control-KeyPress>", self.keys)
 
         btn_clear_connection_type_filter = ttk.Button(self, text='Сбросить')
         btn_clear_connection_type_filter.place(x=65, y=85)
@@ -364,5 +365,26 @@ class FilterConnectionTypes(tk.Toplevel):
             self.ent_connection_type_name.get(), self.ent_connection_type_description.get()))
         btn_apply_connection_type_filter.bind('<Button-1>', lambda event: self.destroy(), add='+') # вешаем доп событие
 
-        btn_closed_connection_type_filter = ttk.Button(self, text='Закрыть', command=self.destroy)
+        btn_closed_connection_type_filter = ttk.Button(self, text='Отмена', command=self.destroy)
         btn_closed_connection_type_filter.place(x=225, y=85)
+
+    @staticmethod  # статический метод
+    def is_ru_lang_keyboard():
+        """ Проверка текущей раскладки ввода на RU """
+        u = ctypes.windll.LoadLibrary("user32.dll")
+        pf = getattr(u, "GetKeyboardLayout")
+        return hex(pf(0)) == '0x4190419'
+
+    def keys(self, event):
+        """ Определяем метод keys() с учетом раскладки """
+        if self.is_ru_lang_keyboard():
+            if event.keycode == 86:
+                event.widget.event_generate("<<Paste>>")
+            if event.keycode == 67:
+                event.widget.event_generate("<<Copy>>")
+            if event.keycode == 88:
+                event.widget.event_generate("<<Cut>>")
+            if event.keycode == 65535:
+                event.widget.event_generate("<<Clear>>")
+            if event.keycode == 65:
+                event.widget.event_generate("<<SelectAll>>")

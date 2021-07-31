@@ -1,3 +1,4 @@
+import ctypes
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as mb
@@ -12,10 +13,8 @@ import tkinter.messagebox as mb
 companies_filter_dict = {'company_name': '', 'company_description': ''}
 
 
-
 class Companies(tk.Frame):
-    ''' Базовый класс для компаний, меню и список компаний '''
-
+    """ Базовый класс для компаний, меню и список компаний """
     def __init__(self, root, app):
         super().__init__(root)
         self.init_companies()
@@ -23,9 +22,6 @@ class Companies(tk.Frame):
         self.app = app  # Передаем класс Main
         #self.db = db.DB()  # Передаем класс DB
         self.show_companies()  # загружаем данные на форму
-
-
-
 
     def init_companies(self):
         # для отображения на полное окно
@@ -107,10 +103,7 @@ class Companies(tk.Frame):
             label="Копировать")
 
     def copy_to_clipboard(self):
-        '''
-        Процедура копирования в буфер обмена
-        :return:
-        '''
+        """ Процедура копирования в буфер обмена """
         id_company = self.companies_table.set(self.companies_table.selection()[0], '#1')
         data = self.app.db.get_company_by_id(id_company)
         clipboard = data[1] + '\n' + data[2]
@@ -118,18 +111,16 @@ class Companies(tk.Frame):
         self.root.clipboard_append(clipboard)
 
     def show_context_menu(self, event):
-        '''
-        Процедура вывода контекстного меню
+        """ Процедура вывода контекстного меню
         :param event:
         :return:
-        '''
+        """
         if (self.companies_table.focus() != ''):
             self.companies_table.identify_row(event.y)
             self.context_menu.post(event.x_root, event.y_root)
 
-    # вывод списка компаний форму
     def show_companies(self):
-        '''Процедура перезаполнения списка компаний согласно данных БД и фильтров'''
+        """ Процедура перезаполнения списка компаний согласно данных БД и фильтров """
         # очистка таблицы
         [self.companies_table.delete(i) for i in self.companies_table.get_children()]
         # получаем данные согласно фильтров
@@ -139,7 +130,7 @@ class Companies(tk.Frame):
         [self.companies_table.insert('', 'end', values=row) for row in data]
 
     def delete_companies(self):
-        ''' Процедура удаления выбранных элементов '''
+        """ Процедура удаления выбранных компаний """
         if (self.companies_table.focus() != ''):
             # Цикл удаление нескольких записей
             # [ids.append(row) for row in self.companies_table.selection()]
@@ -160,15 +151,15 @@ class Companies(tk.Frame):
             mb.showwarning('Предупреждение', 'Выберите компанию')
 
     def open_new_company(self):
-        ''' Открываем окно ввода данных новой компании '''
+        """ Открываем окно ввода данных новой компании """
         NewCompany(self.app)
 
     def save_new_company(self, company_name, company_description):
-        ''' Процедура сохранения новой компании
+        """ Процедура сохранения новой компании
         :param company_name: Название компании
         :param company_description: Комментарий дляя компании
         :return: none
-        '''
+        """
         if (len(company_name) == 0):
             mb.showwarning("Предупреждение", "Требуется ввести название компании")
             return 'clear'
@@ -195,7 +186,7 @@ class Companies(tk.Frame):
                     return 'cancel'
 
     def open_updade_company(self):
-        '''Открываем окно для обновления выбранной компании'''
+        """ Открываем окно для обновления выбранной компании """
         if (self.companies_table.focus() != ''):
             UpdateCompany(self.app)
         else:
@@ -205,32 +196,28 @@ class Companies(tk.Frame):
         FilterCompany(self.app)
 
     def apply_company_filter(self, company_name, company_description):
-        ''' Процедура фильтрации по введенной компании и описанию
+        """ Процедура фильтрации по введенной компании и описанию
         :param company_name: Название компании
         :return none
-        '''
-        #print(company_filter)
+        """
         companies_filter_dict['company_name'] = company_name  # сохраняем фильтр в словарь
         companies_filter_dict['company_description'] = company_description
         self.show_companies()  # перезегружаем список компаний
-        #print(company_filter)
 
     def clear_company_filter(self):
+        """ Очищаем фильтр компаний """
         for key in companies_filter_dict:
             companies_filter_dict[key] = ''  # обнуляем ключи
             self.show_companies()     # перезегружаем список компаний
 
 
 class Company(tk.Toplevel):
-    '''
-    Базовый класс формы компании
-    '''
-
+    """ Базовый класс формы компании """
     def __init__(self, app):
         super().__init__()
         self.init_company()
         self.app = app  # Передаем класс Main
-        #self.db = db  # Передаем класс DB
+        # self.db = db  # Передаем класс DB
         self.clear_company()
 
     def init_company(self):
@@ -247,12 +234,14 @@ class Company(tk.Toplevel):
         lbl_company_name.place(x=50, y=20)
         self.ent_company_name = ttk.Entry(self)
         self.ent_company_name.place(x=200, y=20, width=180)
+        self.ent_company_name.bind("<Control-KeyPress>", self.keys)
         self.ent_company_name.focus()
 
         lbl_company_description = tk.Label(self, text='Описание')
         lbl_company_description.place(x=50, y=50)
         self.txt_company_description = tk.Text(self)
         self.txt_company_description.place(x=200, y=50, width=180, height=100)
+        self.txt_company_description.bind("<Control-KeyPress>", self.keys)
 
         # Полоса прокрутки
         scroll = tk.Scrollbar(self, command=self.txt_company_description.yview)
@@ -260,17 +249,37 @@ class Company(tk.Toplevel):
         scroll.place(x=380, y=50, height=100)
         self.txt_company_description.configure(yscrollcommand=scroll.set)
 
-        self.btn_cancel = ttk.Button(self, text='Закрыть', command=self.destroy)
+        self.btn_cancel = ttk.Button(self, text='Отмена', command=self.destroy)
         self.btn_cancel.place(x=305, y=160)
 
     def clear_company(self):
+        """ Очищаем поля формы """
         self.ent_company_name.delete(0, tk.END)
         self.txt_company_description.delete(1.0, tk.END)
 
+    def is_ru_lang_keyboard(self):
+        """ Проверка текущей раскладки ввода на RU """
+        u = ctypes.windll.LoadLibrary("user32.dll")
+        pf = getattr(u, "GetKeyboardLayout")
+        return hex(pf(0)) == '0x4190419'
+
+    def keys(self, event):
+        """ Определяем метод keys() с учетом раскладки """
+        if self.is_ru_lang_keyboard():
+            if event.keycode == 86:
+                event.widget.event_generate("<<Paste>>")
+            if event.keycode == 67:
+                event.widget.event_generate("<<Copy>>")
+            if event.keycode == 88:
+                event.widget.event_generate("<<Cut>>")
+            if event.keycode == 65535:
+                event.widget.event_generate("<<Clear>>")
+            if event.keycode == 65:
+                event.widget.event_generate("<<SelectAll>>")
+
 
 class NewCompany(Company):
-    ''' Класс формы добавления компании '''
-
+    """ Класс формы добавления компании """
     def __init__(self, app):  # Конструктор
         super().__init__(app)
         self.init_new_company()
@@ -288,6 +297,7 @@ class NewCompany(Company):
         # ))
 
     def save_new_company_action(self):
+        """ Процедура сохранения новой компании - действие """
         action = self.app.companies.save_new_company(self.ent_company_name.get(),
                                                      self.txt_company_description.get('1.0', tk.END))
         if action == 'clear':
@@ -301,8 +311,7 @@ class NewCompany(Company):
 
 
 class UpdateCompany(Company):
-    ''' Класс формы обновления компании '''
-
+    """ Класс формы обновления компании """
     def __init__(self, app):  # Конструктор
         super().__init__(app)
         self.init_update_company()
@@ -324,7 +333,7 @@ class UpdateCompany(Company):
         btn_save.bind('<Button-1>', lambda event: self.destroy(), add='+')  # вешаем еще событие на кнопку
 
     def get_company_for_update(self):
-        ''' Процедура получения и вывода на форму данных выделенной строки '''
+        """ Процедура получения и вывода на форму данных выделенной строки """
         data = self.app.db.get_company_by_id(self.app.companies.companies_table.set(
             self.app.companies.companies_table.selection()[0], '#1'),)
         # Выводим значения в поля формы
@@ -333,8 +342,7 @@ class UpdateCompany(Company):
 
 
 class FilterCompany(tk.Toplevel):
-    ''' Класс формы фильльтра для отображения списка компаний '''
-
+    """ Класс формы фильльтра для отображения списка компаний """
     def __init__(self, app):
         super().__init__()
 
@@ -357,6 +365,7 @@ class FilterCompany(tk.Toplevel):
         self.ent_company_name = ttk.Entry(self)
         self.ent_company_name.place(x=120, y=20, width=180)
         self.ent_company_name.insert(0, companies_filter_dict.get('company_name', ''))  # имя
+        self.ent_company_name.bind("<Control-KeyPress>", self.keys)
         self.ent_company_name.focus()
 
         lbl_company_description = tk.Label(self, text='Описание')
@@ -364,6 +373,7 @@ class FilterCompany(tk.Toplevel):
         self.ent_company_description = ttk.Entry(self)
         self.ent_company_description.place(x=120, y=50, width=180)
         self.ent_company_description.insert(0, companies_filter_dict.get('company_description', ''))  # описание
+        self.ent_company_description.bind("<Control-KeyPress>", self.keys)
 
         btn_clear_company_filter = ttk.Button(self, text='Сбросить')
         btn_clear_company_filter.place(x=65, y=85)
@@ -376,5 +386,25 @@ class FilterCompany(tk.Toplevel):
             self.ent_company_name.get(), self.ent_company_description.get()))
         btn_apply_company_filter.bind('<Button-1>', lambda event: self.destroy(), add='+') # вешаем второе событие
 
-        btn_closed_company_filter = ttk.Button(self, text='Закрыть', command=self.destroy)
+        btn_closed_company_filter = ttk.Button(self, text='Отмена', command=self.destroy)
         btn_closed_company_filter.place(x=225, y=85)
+
+    def is_ru_lang_keyboard(self):
+        """ Проверка текущей раскладки ввода на RU """
+        u = ctypes.windll.LoadLibrary("user32.dll")
+        pf = getattr(u, "GetKeyboardLayout")
+        return hex(pf(0)) == '0x4190419'
+
+    def keys(self, event):
+        """ Определяем метод keys() с учетом раскладки """
+        if self.is_ru_lang_keyboard():
+            if event.keycode == 86:
+                event.widget.event_generate("<<Paste>>")
+            if event.keycode == 67:
+                event.widget.event_generate("<<Copy>>")
+            if event.keycode == 88:
+                event.widget.event_generate("<<Cut>>")
+            if event.keycode == 65535:
+                event.widget.event_generate("<<Clear>>")
+            if event.keycode == 65:
+                event.widget.event_generate("<<SelectAll>>")

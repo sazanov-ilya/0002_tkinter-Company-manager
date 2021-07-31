@@ -1,3 +1,4 @@
+import ctypes
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as mb
@@ -9,10 +10,7 @@ import logins as logins
 
 
 class NewLoginByIdConnection(tk.Toplevel):
-    '''
-    Класс формы добавления логина по id_connection
-    '''
-
+    """ Класс формы добавления логина по id_connection """
     def __init__(self, app, parent, id_connection):
         super().__init__()
         # self.geometry("500x300+300+200")
@@ -41,6 +39,7 @@ class NewLoginByIdConnection(tk.Toplevel):
         lbl_new_login_name.pack(side=tk.LEFT, padx=5, pady=5)
         self.ent_new_login_name = ttk.Entry(frm_new_login_name)
         self.ent_new_login_name.pack(fill=tk.X, padx=5, expand=True)
+        self.ent_new_login_name.bind("<Control-KeyPress>", self.keys)
 
         frm_new_login_password = ttk.Frame(frm_new_login, relief=tk.RAISED, borderwidth=0)
         frm_new_login_password.pack(fill=tk.X)
@@ -48,6 +47,7 @@ class NewLoginByIdConnection(tk.Toplevel):
         lbl_new_login_password.pack(side=tk.LEFT, padx=5, pady=5)
         self.ent_new_login_password = ttk.Entry(frm_new_login_password)
         self.ent_new_login_password.pack(fill=tk.X, padx=5, expand=True)
+        self.ent_new_login_password.bind("<Control-KeyPress>", self.keys)
 
         # На все свободное место
         self.frm_new_login_description = ttk.Frame(frm_new_login, relief=tk.RAISED, borderwidth=0)
@@ -56,12 +56,13 @@ class NewLoginByIdConnection(tk.Toplevel):
         lbl_new_login_description.pack(side=tk.LEFT, anchor=tk.N, padx=5, pady=5)
         self.txt_new_login_description = tk.Text(self.frm_new_login_description)
         self.txt_new_login_description.pack(fill=tk.BOTH, pady=5, padx=5, expand=True)
+        self.txt_new_login_description.bind("<Control-KeyPress>", self.keys)
 
         # Рамка для кнопок
         self.frm_new_login_btn = ttk.Frame(frm_new_login, relief=tk.RAISED, borderwidth=0)
         self.frm_new_login_btn.pack(fill=tk.X)
 
-        self.btn_new_login_cancel = ttk.Button(self.frm_new_login_btn, text='Закрыть',
+        self.btn_new_login_cancel = ttk.Button(self.frm_new_login_btn, text='Отмена',
                                                command=self.destroy)
         self.btn_new_login_cancel.pack(side=tk.RIGHT, pady=7, padx=7)
 
@@ -69,7 +70,31 @@ class NewLoginByIdConnection(tk.Toplevel):
                                              command=self.save_new_login)
         self.btn_new_login_save.pack(side=tk.RIGHT, pady=7, padx=7)
 
+    @staticmethod  # статический метод
+    def is_ru_lang_keyboard():
+        """ Проверка текущей раскладки ввода на RU """
+        u = ctypes.windll.LoadLibrary("user32.dll")
+        pf = getattr(u, "GetKeyboardLayout")
+        return hex(pf(0)) == '0x4190419'
+
+    def keys(self, event):
+        """ Определяем метод keys() с учетом раскладки """
+        if self.is_ru_lang_keyboard():
+            if event.keycode == 86:
+                event.widget.event_generate("<<Paste>>")
+            if event.keycode == 67:
+                event.widget.event_generate("<<Copy>>")
+            if event.keycode == 88:
+                event.widget.event_generate("<<Cut>>")
+            if event.keycode == 65535:
+                event.widget.event_generate("<<Clear>>")
+            if event.keycode == 65:
+                event.widget.event_generate("<<SelectAll>>")
+
     def check_empty(self):
+        """ Процедура проверки на пустые поля формы
+        :return: True/False
+        """
         if len(self.ent_new_login_name.get()) == 0:
             mb.showwarning('Предупреждение', 'Введите логин')
             return False
@@ -79,6 +104,9 @@ class NewLoginByIdConnection(tk.Toplevel):
         return True
 
     def check_exists(self):
+        """ Процедура проверки дублей по введенным данным
+        :return: True/False
+        """
         id_connection = self.id_connection
         login_name = self.ent_new_login_name.get()
         data = self.app.db.get_login_name_for_check_exists(id_connection, login_name)
@@ -88,8 +116,8 @@ class NewLoginByIdConnection(tk.Toplevel):
         return True
 
     def save_new_login(self):
-        # проверка на пустые поля и дубль
-        if (self.check_empty() and self.check_exists()):
+        """ Процедура сохранения нового логина """
+        if (self.check_empty() and self.check_exists()):  # проверка на пустые поля и дубль
             # получаем поля с формы
             id_connection = self.id_connection
             login_name = self.ent_new_login_name.get()
@@ -99,5 +127,5 @@ class NewLoginByIdConnection(tk.Toplevel):
             self.app.db.insert_new_login(id_connection, login_name, login_password, login_description)
             # выводим списко логинов
             self.parent.show_logins_by_id_connection()
-            # имитация клика по "Закрыть"
+            # имитация клика по "Отмена"
             self.btn_new_login_cancel.invoke()

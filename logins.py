@@ -10,9 +10,7 @@ import connections as connections
 
 
 class Logins(tk.Frame):
-    '''
-    Базовый класс формы логинов
-    '''
+    """ Базовый класс формы логинов """
     def __init__(self, root, app, id_connection):
         super().__init__(root)
         self.id_connection = id_connection
@@ -146,10 +144,7 @@ class Logins(tk.Frame):
             label="Копировать")
 
     def copy_to_clipboard(self):
-        '''
-        Процедура копирования в буфер обмена
-        :return:
-        '''
+        """ Процедура копирования в буфер обмена """
         id_login = self.logins_table.set(self.logins_table.selection()[0], '#1')
 
         data_company = self.app.db.get_company_connection_type_by_id_connection(self.id_connection)
@@ -162,28 +157,22 @@ class Logins(tk.Frame):
         self.root.clipboard_append(clipboard)
 
     def show_context_menu(self, event):
-        '''
-        Процедура вывода контекстного меню
+        """ Процедура вывода контекстного меню
         :param event:
         :return:
-        '''
+        """
         if (self.logins_table.focus() != ''):
             self.logins_table.identify_row(event.y)
             self.context_menu.post(event.x_root, event.y_root)
 
     def show_company_name(self):
-        '''
-        Процедура загрузки на форму названия компании и типа подклюжчения
-        :return:
-        '''
+        """ Процедура выводв на форму названия компании и типа подклюжчения """
         data = self.app.db.get_company_connection_type_by_id_connection(self.id_connection)
         label = (data[1]) + '  ->  ' + (data[2])
         self.lbl_company_name.config(text=label)
 
     def show_logins_by_id_connection(self):
-        '''
-        Процедура перезаполнения списка логинов
-        '''
+        """ Процедура перезаполнения списка логинов """
         # очистка таблицы
         [self.logins_table.delete(i) for i in self.logins_table.get_children()]
         #
@@ -194,17 +183,13 @@ class Logins(tk.Frame):
         [self.logins_table.insert('', 'end', values=row) for row in data]
 
     def open_new_login(self):
-        '''
-        Открываем окно для ввода нового логтна по выбранному подключению
-        Передаем app и id первого выбранного в списке подключения
-        '''
+        """ Открываем окно для ввода нового логтна по выбранному подключению
+        Передаем app и id первого выбранного в списке подключения """
         new_login_by_id_connection.NewLoginByIdConnection(self.app, self, self.id_connection)
         self.show_logins_by_id_connection()
 
     def open_connections(self):
-        '''
-        Возврат на окно со списком подключений
-        '''
+        """ Возврат на окно со списком подключений """
         # чистим форму
         self.app.clear_frm_content_all()
         # убиваем текушую форму
@@ -213,9 +198,7 @@ class Logins(tk.Frame):
         self.connections = connections.Connections(self.app.frm_content_all, self.app)
 
     def delete_logins(self):
-        '''
-        Процедура удаления выбранных типов подключения
-        '''
+        """ Процедура удаления выбранных типов подключения """
         if (self.logins_table.focus() != ''):
             answer = mb.askyesno(title='Запрос действия',
                                  message="Хотите удалить выбранные элементы?")

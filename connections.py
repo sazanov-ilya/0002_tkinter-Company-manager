@@ -1,3 +1,4 @@
+import ctypes
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as mb
@@ -15,10 +16,7 @@ import connection_types as connection_types
 
 
 class Connections(tk.Frame):
-    '''
-    Базовый класс формы списка всех подключений
-    '''
-
+    """ Базовый класс формы списка всех подключений """
     def __init__(self, root, app):
         super().__init__(root)
         self.init_connections()
@@ -127,9 +125,7 @@ class Connections(tk.Frame):
         # frm_toolbar.pack(side=tk.TOP, fill=tk.X)
 
     def show_connections(self):
-        '''
-        Процедура перезаполнения списка тиов подключения согласно данных БД и фильтров
-        '''
+        """ Процедура перезаполнения списка тиов подключения согласно данных БД и фильтров """
         # чистим
         [self.treeview_list.delete(i) for i in self.treeview_list.get_children()]
         # получаем данные
@@ -142,9 +138,7 @@ class Connections(tk.Frame):
         [self.treeview_list.insert('', 'end', values=row) for row in data]
 
     def delete_connections(self):
-        '''
-        Процедура удаления выбранных типов подключения
-        '''
+        """ Процедура удаления выбранных типов подключения """
         if (self.treeview_list.focus() != ''):
             answer = mb.askyesno(title='Запрос действия',
                                  message="Хотите удалить выбранные элементы?")
@@ -158,15 +152,11 @@ class Connections(tk.Frame):
             mb.showwarning('Предупреждение', 'Выберите подключение в списке')
 
     def open_new_connection(self):
-        '''
-        Открываем окно ввода данных нового типа подключения
-        '''
+        """ Открываем окно ввода данных нового типа подключения """
         NewConnection(self.app)
 
     def open_filter_connection(self):
-        '''
-        Открываем окно ввода данных нового типа подключения
-        '''
+        """ Открываем окно ввода данных нового типа подключения """
         FilterConnections(self.app)
 
     #def open_new_login(self):
@@ -182,10 +172,8 @@ class Connections(tk.Frame):
     #        mb.showwarning('Предупреждение', 'Выберите подключение в списке')
 
     def open_logins(self):
-        '''
-        Открывааем окно со списком всех логинов выделенного подключения
-        Передаем app и id первого выбранного в списке подключения
-        '''
+        """ Открывааем окно со списком всех логинов выделенного подключения
+        Передаем app и id первого выбранного в списке подключения """
         if (self.treeview_list.focus() != ''):
             id_connection = self.treeview_list.set(self.treeview_list.selection()[0], '#1')
             # чистим форму
@@ -199,14 +187,13 @@ class Connections(tk.Frame):
             mb.showwarning('Предупреждение', 'Выберите подключение в списке')
 
     def set_connection_filter(self, id_company, id_connection_type, connection_ip, connection_description):
-        '''
-        Сеттер для словаря фильтра
+        """ Сеттер для словаря фильтра
         :param id_company:
         :param id_connection_type:
         :param connection_ip:
         :param connection_description:
         :return none
-        '''
+        """
         # сохраняем фильтр в словарь
         self.connections_filter_dict['id_company'] = id_company
         self.connections_filter_dict['id_connection_type'] = id_connection_type
@@ -215,19 +202,14 @@ class Connections(tk.Frame):
         self.show_connections()  # перезагружаем список
 
     def clear_connection_filter(self):
-        '''
-        Чистим фильтр
-        '''
+        """ Процедура очистки фильтра подключений """
         for key in self.connections_filter_dict:
             self.connections_filter_dict[key] = ''  # обнуляем ключи
             self.show_connections()  # перезегружаем список
 
 
 class Connection(tk.Toplevel):
-    '''
-    Базовый класс всплывающего окна
-    '''
-
+    """ Базовый класс всплывающего окна подключений """
     def __init__(self, app):
         super().__init__()
         # self.geometry("500x300+300+200")
@@ -284,6 +266,7 @@ class Connection(tk.Toplevel):
         lbl_conn_name.pack(side=tk.LEFT, padx=5, pady=5)
         self.ent_conn_name = ttk.Entry(frm_conn_name)
         self.ent_conn_name.pack(fill=tk.X, padx=5, expand=True)
+        self.ent_conn_name.bind("<Control-KeyPress>", self.keys)
 
         # на все свободное место
         self.frm_conn_description = ttk.Frame(frm_conns, relief=tk.RAISED, borderwidth=0)
@@ -292,6 +275,7 @@ class Connection(tk.Toplevel):
         lbl_conn_description.pack(side=tk.LEFT, anchor=tk.N, padx=5, pady=5)
         self.txt_conn_description = tk.Text(self.frm_conn_description)
         self.txt_conn_description.pack(fill=tk.BOTH, pady=5, padx=5, expand=True)
+        self.txt_conn_description.bind("<Control-KeyPress>", self.keys)
 
         # рамка для кнопок
         self.frm_conn_btn = ttk.Frame(frm_conns, relief=tk.RAISED, borderwidth=0)
@@ -300,10 +284,29 @@ class Connection(tk.Toplevel):
         # self.btn_cancel.place(x=305, y=160)
         self.btn_cancel.pack(side=tk.RIGHT, pady=7, padx=7)
 
+    @staticmethod  # статический метод
+    def is_ru_lang_keyboard():
+        """ Проверка текущей раскладки ввода на RU """
+        u = ctypes.windll.LoadLibrary("user32.dll")
+        pf = getattr(u, "GetKeyboardLayout")
+        return hex(pf(0)) == '0x4190419'
+
+    def keys(self, event):
+        """ Определяем метод keys() с учетом раскладки """
+        if self.is_ru_lang_keyboard():
+            if event.keycode == 86:
+                event.widget.event_generate("<<Paste>>")
+            if event.keycode == 67:
+                event.widget.event_generate("<<Copy>>")
+            if event.keycode == 88:
+                event.widget.event_generate("<<Cut>>")
+            if event.keycode == 65535:
+                event.widget.event_generate("<<Clear>>")
+            if event.keycode == 65:
+                event.widget.event_generate("<<SelectAll>>")
+
     def get_comps_list(self):
-        '''
-        Процедура заполнения списка компаний
-        '''
+        """ Процедура заполнения списка компаний """
         self.comps_list = self.app.db.get_company_list()
         # first, second- первые 2 элемента, *other - все остальные элементы
         # self.cmb_comps_list['values'] = [second for first, second, *other in data]
@@ -312,9 +315,7 @@ class Connection(tk.Toplevel):
         # print(self.comps_list)
 
     def get_conn_types_list(self):
-        '''
-        Процедура заполнения списка типов подключения
-        '''
+        """ Процедура заполнения списка типов подключения """
         self.conn_types_list = self.app.db.get_connection_type_list()
         # first, second- первые 2 элемента, *other - все остальные элементы
         # self.cmb_comps_list['values'] = [second for first, second, *other in data]
@@ -323,10 +324,9 @@ class Connection(tk.Toplevel):
         # print(self.conn_types_list)
 
     def check_empty(self):
-        '''
-        Проверка пустых полей
-        :return:
-        '''
+        """ Процедкра проверки на пустые поля
+        :return: True/False
+        """
         if (self.cmb_comps_list.current()) == -1:
             mb.showwarning('Предупреждение', 'Выберите компанию')
             return False
@@ -339,10 +339,9 @@ class Connection(tk.Toplevel):
         return True
 
     def check_exists(self):
-        '''
-        Проверка дублей по введенным данным
-        :return:
-        '''
+        """ Процедура проверки дублей по введенным данным
+        :return: True/False
+        """
         id_company = self.comps_list[self.cmb_comps_list.current()][0]
         id_connection_type = self.conn_types_list[self.cmb_conn_types_list.current()][0]
         conn_name = self.ent_conn_name.get()
@@ -353,9 +352,7 @@ class Connection(tk.Toplevel):
         return True
 
 class NewConnection(Connection):
-    '''
-    Класс формы ввода нового подключения
-    '''
+    """ Класс формы ввода нового подключения """
     def __init__(self, app):  # Конструктор
         super().__init__(app)
         self.init_new_connection()
@@ -372,10 +369,7 @@ class NewConnection(Connection):
         self.btn_save.pack(side=tk.RIGHT, pady=7, padx=7)
 
     def save_new_connection(self):
-        '''
-        Процедура сохраненеия нового подключения
-        :return:
-        '''
+        """ Процедура сохраненеия нового подключения """
         if (self.check_empty() and self.check_exists()):  # проверка на пустые поля и дубль
             # данные с формы
             id_company = self.comps_list[self.cmb_comps_list.current()][0]
@@ -390,9 +384,7 @@ class NewConnection(Connection):
 
 
 class FilterConnections(Connection):
-    '''
-    Класс формы ввода фильтров для списка подключений
-    '''
+    """ Класс формы ввода фильтров для списка подключений """
     def __init__(self, app):  # Конструктор
         super().__init__(app)
         self.init_filter_connection()
@@ -425,10 +417,7 @@ class FilterConnections(Connection):
         btn_clear_connection_filter.bind('<Button-1>', lambda event: self.destroy(), add='+')  # вешаем доп событие
 
     def apply_connection_filter(self):
-        '''
-        Прроцедура применения фильтров
-        :return:
-        '''
+        """ Прроцедура применения фильтров """
         # получаем компанию с формы
         if (self.cmb_comps_list.current()) == -1:
             id_company = ''
