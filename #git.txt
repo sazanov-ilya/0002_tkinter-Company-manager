@@ -1,0 +1,14 @@
+git init
+
+git add .
+
+git commit -m "first commit"
+
+git branch -M main
+
+git remote add origin https://github.com/sazanov-ilya/0002_tkinter-Company-manager.git
+
+git push -u origin main
+
+
+pyinstaller.exe -F -w main.py

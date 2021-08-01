@@ -2,13 +2,10 @@ import sqlite3
 import tkinter.messagebox as mb
 
 class DB:
-    '''
-    Класс подвлючения к БД sqlite3
-    '''
-
+    """ Класс подвлючения к БД sqlite3 """
     def __init__(self):
-        #self.root = root  # Передаем класс Main
-        self.conn_sqlite3 = sqlite3.connect('сompleted_work.db')
+        # self.root = root  # Передаем класс Main
+        self.conn_sqlite3 = sqlite3.connect('company_manager.db')
         self.c_sqlite3 = self.conn_sqlite3.cursor()
 
         # Создаем таблицу компаний
@@ -43,8 +40,8 @@ class DB:
             self.c_sqlite3.execute(
                 '''CREATE TABLE IF NOT EXISTS connections (id_connection integer primary key,
                 id_company integer,id_connection_type integer, connection_ip text, connection_description text,
-                FOREIGN KEY(id_company) REFERENCES companies(id_company),
-                FOREIGN KEY(id_connection_type) REFERENCES connection_types(id_connection_type))'''
+                FOREIGN KEY(id_company) REFERENCES companies(id_company) ON DELETE CASCADE,
+                FOREIGN KEY(id_connection_type) REFERENCES connection_types(id_connection_type) ON DELETE CASCADE)'''
             )
             self.conn_sqlite3.commit()
         except sqlite3.Error as err:
@@ -56,7 +53,7 @@ class DB:
             self.c_sqlite3.execute(
                 '''CREATE TABLE IF NOT EXISTS logins (id_login integer primary key,
                 id_connection integer, login_name text, login_password text, login_description text,
-                FOREIGN KEY(id_connection) REFERENCES connections(id_connection))'''
+                FOREIGN KEY(id_connection) REFERENCES connections(id_connection) ON DELETE CASCADE)'''
             )
             self.conn_sqlite3.commit()
         except sqlite3.Error as err:
@@ -66,12 +63,14 @@ class DB:
 
 # companies
     def get_company_by_id(self, id_company):
-        '''
-        Процедура возврата данных компании по переданному id
-        '''
+        """ Процедура возврата данных компании по переданному id
+        :param id_company:
+        :return: No
+        """
         try:
             self.c_sqlite3.execute(
-                '''SELECT id_company, company_name, company_description FROM companies WHERE id_company=?''', [id_company]
+                '''SELECT id_company, company_name, company_description FROM companies WHERE id_company=?''',
+                [id_company]
             )
         except sqlite3.Error as err:
             mb.showerror("ОШИБКА!", err.__str__())
@@ -80,11 +79,10 @@ class DB:
         return data
 
     def get_company_name_by_name(self, company_name):
-        '''
-        Процедура проверки наличия компании по ее имени
+        """ Процедура проверки наличия компании по ее имени
         :param company_name: Название компании
-        :return: true/false
-        '''
+        :return: company_name/None
+        """
         company_name = (company_name.lower(),)
         try:
             self.c_sqlite3.execute(
@@ -100,12 +98,11 @@ class DB:
             return None
 
     def get_company_list_by_filter(self, company_name, company_description):
-        '''
-        Процедура возврата результата списка компаний согласно переданных фильтров
+        """ Процедура возврата результата списка компаний согласно переданных фильтров
         :param company_name: Фильтр по названию компании
         :param company_description: Фильтр по описанию для компании
         :return: набор кортежей со списком компаний согласно фильтров
-        '''
+        """
         if (company_name and company_description):  # проверяем фильтр
             company_filter_name = ('%' + company_name.lower() + '%')
             company_filter_description = ('%' + company_description.lower() + '%')
@@ -162,10 +159,9 @@ class DB:
         return data
 
     def get_company_list(self):
-        '''
-        Процедура возвращает список компаний для выпадающего списка
+        """ Процедура возвращает список компаний для выпадающего списка
         :return: набор кортежей id и company_name
-        '''
+        """
         try:
             self.c_sqlite3.execute(
                 '''SELECT id_company, company_name FROM companies'''
@@ -179,12 +175,11 @@ class DB:
         return data
 
     def insert_new_company(self, company_name, company_description):
-        '''
-        Процедура сохранения данных новой компании
+        """ Процедура сохранения данных новой компании
         :param company_name: Название компании
         :param company_description: Описание для компании
-        :return: none
-        '''
+        :return: No
+        """
         try:
             self.c_sqlite3.execute(
                 '''INSERT INTO companies(company_name, company_description) VALUES(?, ?)''',
@@ -196,12 +191,11 @@ class DB:
             # self.root.destroy()
 
     def update_company_by_name(self, company_name, company_description):
-        '''
-        Процедура обновления данных компании по ее имени
+        """ Процедура обновления данных компании по ее имени
         :param company_name: Название компании
         :param company_description: Комментарий для компании
-        :return: none
-        '''
+        :return: No
+        """
         try:
             self.c_sqlite3.execute(
                 '''UPDATE companies SET company_name=?, company_description=? WHERE LOWER(company_name) = ?''',
@@ -213,12 +207,11 @@ class DB:
             # self.root.destroy()
 
     def update_company_by_id(self, id_company, company_name, company_description):
-        '''
-        Процедура обновления данных первой выделенной в списке компании по ее id
+        """ Процедура обновления данных первой выделенной в списке компании по ее id
         :param company_name: Название компании
         :param company_description: Комментарий для компании
-        :return none
-        '''
+        :return No
+        """
 
         # передаем все поля и id как первый элемент из списка выделенных и порядковый номер столбца
         try:
@@ -232,9 +225,10 @@ class DB:
             # self.root.destroy()
 
     def delete_companies(self, ids):
-        '''
-        Процедура удаления выбранных в списке компаний
-        '''
+        """ Процедура удаления выбранных в списке компаний
+        :param ids: Список id компаний
+        :return: No
+        """
         try:
             for id in ids:
                 self.c_sqlite3.execute(
@@ -248,11 +242,10 @@ class DB:
 
 # connection_types
     def get_connection_type_by_id(self, id_connection_type):
-        '''
-        Процедура возврата данных типа подключения по переданному id
+        """ Процедура возврата данных типа подключения по переданному id
         :param id_connection_type: id типа подключения
         :return: возвращает только одну запись по id
-        '''
+        """
         try:
             self.c_sqlite3.execute(
                 '''SELECT id_connection_type, connection_type_name, connection_type_description
@@ -265,10 +258,10 @@ class DB:
         return data
 
     def get_connection_type_name_by_name(self, connection_type_name):
-        '''Процедура проверки наличия типа подключения по его имени
-           :param connection_type_name: Название компании
-           :return: true/false
-        '''
+        """ Процедура проверки наличия типа подключения по его имени
+        :param connection_type_name: Название типа подключения
+        :return: connection_type_name/None
+        """
         connection_type_name = (connection_type_name.lower(),)
         try:
             self.c_sqlite3.execute(
@@ -285,12 +278,11 @@ class DB:
             return None
 
     def get_connection_type_list_by_filter(self, connection_type_name, connection_type_description):
-        '''
-        Процедура возврата результата списка типов подключения согласно переданных фильтров
+        """ Процедура возврата результата списка типов подключения согласно переданных фильтров
         :param connection_type_name: Фильтр по названию типа подключения
         :param connection_type_description: Фильтр по описанию для типа подключения
         :return: набор кортежей со списком компаний согласно фильтров
-        '''
+        """
         if (connection_type_name and connection_type_description):  # проверяем фильтр
             connection_type_filter_name = ('%' + connection_type_name.lower() + '%')
             connection_type_filter_description = ('%' + connection_type_description.lower() + '%')
@@ -353,10 +345,9 @@ class DB:
         return data
 
     def get_connection_type_list(self):
-        '''
-        Процедура возвращает список типов подключений
+        """ Процедура возвращает список типов подключений
         :return: набор кортежей id и connection_type_name
-        '''
+        """
         try:
             self.c_sqlite3.execute(
                 '''SELECT id_connection_type, connection_type_name FROM connection_types'''
@@ -370,6 +361,11 @@ class DB:
         return data
 
     def insert_new_connection_type(self, connection_type_name, connection_type_description):
+        """ Процедура сохранения нового типа подключения
+        :param connection_type_name:
+        :param connection_type_description:
+        :return: No
+        """
         try:
             self.c_sqlite3.execute(
                 '''INSERT INTO connection_types(connection_type_name, connection_type_description) VALUES(?, ?)''',
@@ -380,12 +376,11 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
 
     def update_connection_type_by_name(self, connection_type_name, connection_type_description):
-        '''
-        Процедура обновления данных типа подключения по его имени
-           :param connection_type_name: Название типа подключения
-           :param connection_type_description: Комментарий для типа подключения
-           :return: none
-        '''
+        """ Процедура обновления данных типа подключения по его имени
+        :param connection_type_name: Название типа подключения
+        :param connection_type_description: Комментарий для типа подключения
+        :return: No
+        """
         try:
             self.c_sqlite3.execute(
                 '''UPDATE connection_types SET connection_type_name=?, connection_type_description=? 
@@ -397,11 +392,11 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
 
     def update_connection_type_by_id(self, id_connection_type, connection_type_name, connection_type_description):
-        '''Процедура обновления данных первого выделенного в списке типа подключения
-           :param connection_type_name: Название типа подключения
-           :param connection_type_description: Комментарий для типа подключения
-           :return none
-        '''
+        """ Процедура обновления данных первого выделенного в списке типа подключения
+        :param connection_type_name: Название типа подключения
+        :param connection_type_description: Комментарий для типа подключения
+        :return No
+        """
         try:
             self.c_sqlite3.execute(
                 '''UPDATE connection_types SET connection_type_name=?, connection_type_description=?
@@ -413,7 +408,10 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
 
     def delete_connection_types(self, ids):
-        ''' Процедура удаления выбранных типов подключения '''
+        """ Процедура удаления выбранных типов подключения
+        :param ids: Список id типов подключения
+        :return: No
+        """
         try:
             for id in ids:
                 self.c_sqlite3.execute(
@@ -425,11 +423,10 @@ class DB:
 
 # connections
     def get_company_connection_type_by_id_connection(self, id_connection):
-        '''
-        Процедкра возврата названия компании и названия пипа подключения по id подключения
+        """ Процедкра возврата названия компании и названия пипа подключения по id подключения
         :param id_connection:
-        :return:
-        '''
+        :return: название компании и тип подклюжчения
+        """
         try:
             self.c_sqlite3.execute(
                 '''SELECT connections.id_connection, companies.company_name, connection_types.connection_type_name
@@ -446,14 +443,13 @@ class DB:
 
 
     def get_connections_by_filter(self, id_company, id_connection_type, connection_ip, connection_description):
-        '''
-        Процедура возврата списка подключений согласно фильтра
+        """ Процедура возврата списка подключений согласно фильтра
         :param id_company: Фильтр по id_company
         :param id_connection_type: Фильтр по id_connection_type
         :param connection_ip: Фильтр по Ip-адрес/домен через LIKE
         :param connection_description: Фильтр по Описанию через LIKE
         :return: набор кортежей со списком подключений согласно фильтров
-        '''
+        """
         if (id_company and id_connection_type):  # компания и тип
             #company_filter_name = ('%' + company_name.lower() + '%')
             #company_filter_description = ('%' + company_description.lower() + '%')
@@ -519,14 +515,13 @@ class DB:
         return data
 
     def insert_new_connection(self, id_company, id_connection_type, connection_ip, connection_description):
-        '''
-        Процедура сохранения нового подключения
+        """ Процедура сохранения нового подключения
         :param id_company:
         :param id_connection_type:
         :param connection_ip:
         :param connection_description:
-        :return: none
-        '''
+        :return: No
+        """
         try:
             self.c_sqlite3.execute(
                 '''INSERT INTO connections(id_company, id_connection_type, connection_ip, connection_description) 
@@ -538,9 +533,10 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
 
     def delete_connections(self, ids):
-        '''
-        Процедура удаления выбранных подключений
-        '''
+        """ Процедура удаления подключений
+        :param ids: Список id подключений
+        :return: No
+        """
         try:
             for id in ids:
                 self.c_sqlite3.execute(
@@ -551,13 +547,12 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
 
     def get_connection_ip_for_check_exists(self, id_company, id_connection_type, connection_ip):
-        '''
-        Процедура проверки наличия подключения по компании, типу подключения и ip/домену (проверка на дубль)
+        """ Процедура проверки наличия подключения по компании, типу подключения и ip/домену (проверка на дубль)
         :param id_company:
         :param id_connection_type:
         :param connection_ip:
         :return: connection_ip/None
-        '''
+        """
         try:
             self.c_sqlite3.execute(
                 '''SELECT connection_ip FROM connections WHERE id_company = ? and
@@ -574,12 +569,11 @@ class DB:
             return None
 
     def get_login_name_for_check_exists(self, id_connection, login_name):
-        '''
-        Процедура проверки наличия логина по id_connection и login_name (проверка на дубль)
+        """ Процедура проверки наличия логина по id_connection и login_name (проверка на дубль)
         :param id_connection:
         :param login_name:
         :return: login_name/None
-        '''
+        """
         try:
             self.c_sqlite3.execute(
                 '''SELECT login_name FROM logins WHERE id_connection = ? and LOWER(login_name) = ?''',
@@ -595,14 +589,13 @@ class DB:
             return None
 
     def insert_new_login(self, id_connection, login_name, login_password, login_description):
-        '''
-        Процедура сохранения нового логина для подключения через id_connection
+        """ Процедура сохранения нового логина для подключения через id_connection
         :param id_connection:
         :param login_name:
         :param login_password:
         :param login_description:
-        :return: none
-        '''
+        :return: No
+        """
         try:
             self.c_sqlite3.execute(
                 '''INSERT INTO logins(id_connection, login_name, login_password, login_description)
@@ -615,9 +608,10 @@ class DB:
 
 # logins
     def get_logins_list_by_id(self, id_login):
-        '''
-        Процедура возврата данных компании по переданному id
-        '''
+        """ Процедура возврата данных логина по переданному id
+        :param id_login:
+        :return: Кортеж значений
+        """
         try:
             self.c_sqlite3.execute(
                 '''SELECT id_login, login_name, login_password, login_description 
@@ -627,15 +621,15 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
             # self.root.destroy()
         data = self.c_sqlite3.fetchone()  # возвращает только одну запись
+        print(data)
         return data
 
 
     def get_logins_list_by_id_connection(self, id_connection):
-        '''
-        Процедура возврата списка компаний по id_connection
+        """ Процедура возврата списка компаний по id_connection
         :param id_connection:
-        :return: набор кортежей со списком логинов согласно фильтров
-        '''
+        :return: Набор кортежей со списком логинов согласно фильтров
+        """
         try:
             self.c_sqlite3.execute(
                 '''SELECT id_login, login_name, login_password, login_description
@@ -650,9 +644,10 @@ class DB:
         return data
 
     def delete_logins(self, ids):
-        '''
-        Процедура удаления логинов
-        '''
+        """ Процедура удаления логинов
+        :param ids: Список id логинов
+        :return:
+        """
         try:
             for id in ids:
                 self.c_sqlite3.execute(

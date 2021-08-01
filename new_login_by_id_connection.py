@@ -5,6 +5,7 @@ import tkinter.messagebox as mb
 # import re
 
 # импортируем свои модули
+import __general_procedures as gp
 import logins as logins
 
 
@@ -14,11 +15,11 @@ class NewLoginByIdConnection(tk.Toplevel):
     def __init__(self, app, parent, id_connection):
         super().__init__()
         # self.geometry("500x300+300+200")
-        self.id_connection = id_connection
 
         self.init_new_login_by_id_connection()
         self.app = app  # Передаем класс Main
         self.parent = parent  # класс Logins
+        self.id_connection = id_connection
 
     def init_new_login_by_id_connection(self):
         self.title("Добавить новый логин")
@@ -39,7 +40,7 @@ class NewLoginByIdConnection(tk.Toplevel):
         lbl_new_login_name.pack(side=tk.LEFT, padx=5, pady=5)
         self.ent_new_login_name = ttk.Entry(frm_new_login_name)
         self.ent_new_login_name.pack(fill=tk.X, padx=5, expand=True)
-        self.ent_new_login_name.bind("<Control-KeyPress>", self.keys)
+        self.ent_new_login_name.bind("<Control-KeyPress>", gp.keys)
 
         frm_new_login_password = ttk.Frame(frm_new_login, relief=tk.RAISED, borderwidth=0)
         frm_new_login_password.pack(fill=tk.X)
@@ -47,7 +48,7 @@ class NewLoginByIdConnection(tk.Toplevel):
         lbl_new_login_password.pack(side=tk.LEFT, padx=5, pady=5)
         self.ent_new_login_password = ttk.Entry(frm_new_login_password)
         self.ent_new_login_password.pack(fill=tk.X, padx=5, expand=True)
-        self.ent_new_login_password.bind("<Control-KeyPress>", self.keys)
+        self.ent_new_login_password.bind("<Control-KeyPress>", gp.keys)
 
         # На все свободное место
         self.frm_new_login_description = ttk.Frame(frm_new_login, relief=tk.RAISED, borderwidth=0)
@@ -56,7 +57,7 @@ class NewLoginByIdConnection(tk.Toplevel):
         lbl_new_login_description.pack(side=tk.LEFT, anchor=tk.N, padx=5, pady=5)
         self.txt_new_login_description = tk.Text(self.frm_new_login_description)
         self.txt_new_login_description.pack(fill=tk.BOTH, pady=5, padx=5, expand=True)
-        self.txt_new_login_description.bind("<Control-KeyPress>", self.keys)
+        self.txt_new_login_description.bind("<Control-KeyPress>", gp.keys)
 
         # Рамка для кнопок
         self.frm_new_login_btn = ttk.Frame(frm_new_login, relief=tk.RAISED, borderwidth=0)
@@ -69,27 +70,6 @@ class NewLoginByIdConnection(tk.Toplevel):
         self.btn_new_login_save = ttk.Button(self.frm_new_login_btn, text='Сохранить',
                                              command=self.save_new_login)
         self.btn_new_login_save.pack(side=tk.RIGHT, pady=7, padx=7)
-
-    @staticmethod  # статический метод
-    def is_ru_lang_keyboard():
-        """ Проверка текущей раскладки ввода на RU """
-        u = ctypes.windll.LoadLibrary("user32.dll")
-        pf = getattr(u, "GetKeyboardLayout")
-        return hex(pf(0)) == '0x4190419'
-
-    def keys(self, event):
-        """ Определяем метод keys() с учетом раскладки """
-        if self.is_ru_lang_keyboard():
-            if event.keycode == 86:
-                event.widget.event_generate("<<Paste>>")
-            if event.keycode == 67:
-                event.widget.event_generate("<<Copy>>")
-            if event.keycode == 88:
-                event.widget.event_generate("<<Cut>>")
-            if event.keycode == 65535:
-                event.widget.event_generate("<<Clear>>")
-            if event.keycode == 65:
-                event.widget.event_generate("<<SelectAll>>")
 
     def check_empty(self):
         """ Процедура проверки на пустые поля формы

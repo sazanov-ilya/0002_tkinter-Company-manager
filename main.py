@@ -43,20 +43,20 @@ class Main(tk.Frame):
         # кнопки меню с картинками
         # 1
         self.company_img = tk.PhotoImage(file='new_company.gif')
-        btn_open_test = tk.Button(frm_main_toolbar, text='Компании', bg='#d7d8e0', bd=0, compound=tk.BOTTOM,
-                                  image=self.company_img, command=self.open_companies)
-        btn_open_test.pack(side=tk.LEFT)
+        btn_open_company = tk.Button(frm_main_toolbar, text='Компании', bg='#d7d8e0', bd=1, pady=1, padx=6,
+                                     compound=tk.BOTTOM, image=self.company_img, command=self.open_companies)
+        btn_open_company.pack(side=tk.LEFT)
 
         # 2
         self.connections_img = tk.PhotoImage(file='new_company.gif')
-        btn_open_connections = tk.Button(frm_main_toolbar, text='Типы доступов', bg='#d7d8e0', bd=0, compound=tk.BOTTOM,
-                                         image=self.company_img, command=self.open_connection_types)
+        btn_open_connections = tk.Button(frm_main_toolbar, text='Типы доступов', bg='#d7d8e0', bd=1, pady=1, padx=6,
+                                         compound=tk.BOTTOM, image=self.company_img, command=self.open_connection_types)
         btn_open_connections.pack(side=tk.LEFT)
 
         # 3
         self.connections_img = tk.PhotoImage(file='new_company.gif')
-        btn_open_connections = tk.Button(frm_main_toolbar, text='Доступы', bg='#d7d8e0', bd=0, compound=tk.BOTTOM,
-                                         image=self.company_img, command=self.open_connections)
+        btn_open_connections = tk.Button(frm_main_toolbar, text='Доступы', bg='#d7d8e0', bd=1, pady=1, padx=6,
+                                         compound=tk.BOTTOM, image=self.company_img, command=self.open_connections)
         btn_open_connections.pack(side=tk.LEFT)
 
         ## 4
@@ -66,11 +66,11 @@ class Main(tk.Frame):
         #                                  image=self.frm_content_all_clear_img, command=self.clear_frm_content_all)
         #btn_content_all_clear.pack(side=tk.LEFT)
 
-        self.frm_content_all_logins_img = tk.PhotoImage(file='new_company.gif')
-        btn_content_all_logins = tk.Button(frm_main_toolbar, text='Тест логины', bg='#d7d8e0', bd=0,
-                                           compound=tk.BOTTOM,
-                                           image=self.frm_content_all_logins_img, command=self.open_logins)
-        btn_content_all_logins.pack(side=tk.LEFT)
+        #self.frm_content_all_logins_img = tk.PhotoImage(file='new_company.gif')
+        #btn_content_all_logins = tk.Button(frm_main_toolbar, text='Тест логины', bg='#d7d8e0', bd=1,
+        #                                   compound=tk.BOTTOM,
+        #                                   image=self.frm_content_all_logins_img, command=self.open_logins)
+        #btn_content_all_logins.pack(side=tk.LEFT)
 
         # рамка контента главного окна
         self.frm_content_all = ttk.Frame(self, relief=tk.RAISED, borderwidth=3)
@@ -117,8 +117,8 @@ if __name__ == '__main__':
 
     root.protocol("WM_DELETE_WINDOW", on_closing)  # клик по крестику
 
-    db = db.DB()  # Добавляем класс DB возможности добавления в другие классы
-    app = Main(root)  # добавляем класс Main ...
+    db = db.DB()  # Добавляем класс DB
+    app = Main(root)  # добавляем класс Main
 
     app.pack()
     root.title("База списка подключений")

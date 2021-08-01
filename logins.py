@@ -13,9 +13,9 @@ class Logins(tk.Frame):
     """ Базовый класс формы логинов """
     def __init__(self, root, app, id_connection):
         super().__init__(root)
-        self.id_connection = id_connection
         self.root = root
         self.app = app  # Передаем класс Main
+        self.id_connection = id_connection
 
         self.init_logins()
 

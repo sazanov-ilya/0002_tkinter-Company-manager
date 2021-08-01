@@ -5,14 +5,15 @@ import tkinter.messagebox as mb
 import re
 
 # импортируем свои модули
+import __general_procedures as gp
 import logins as logins
-import new_login_by_id_connection as new_login_by_id_connection
-import connection_types as connection_types
+# import new_login_by_id_connection as new_login_by_id_connection
+# import connection_types as connection_types
 
 
-# cловарь фильтров
+# словать фильтров
 # работает при переходах между вкладками
-#connections_filter_dict = {'connection_type_name': '', 'connection_type_description': ''}
+# connections_filter_dict = {'connection_type_name': '', 'connection_type_description': ''}
 
 
 class Connections(tk.Frame):
@@ -120,7 +121,7 @@ class Connections(tk.Frame):
         scroll.pack(side=tk.RIGHT, fill=tk.Y)
         self.treeview_list.configure(yscrollcommand=scroll.set)
 
-        ## рамка для toolbar
+        # # рамка для toolbar
         # frm_toolbar = tk.Frame(frm_conns, bg='#d7d8e0', bd=4, relief=tk.GROOVE)
         # frm_toolbar.pack(side=tk.TOP, fill=tk.X)
 
@@ -139,10 +140,10 @@ class Connections(tk.Frame):
 
     def delete_connections(self):
         """ Процедура удаления выбранных типов подключения """
-        if (self.treeview_list.focus() != ''):
+        if self.treeview_list.focus() != '':
             answer = mb.askyesno(title='Запрос действия',
                                  message="Хотите удалить выбранные элементы?")
-            if (answer):  # если Да = True
+            if answer:  # если Да = True
                 ids = []  # кортеж id выделенных элементов
                 for selection_item in self.treeview_list.selection():
                     ids.append(self.treeview_list.set(selection_item, '#1'), )
@@ -159,7 +160,7 @@ class Connections(tk.Frame):
         """ Открываем окно ввода данных нового типа подключения """
         FilterConnections(self.app)
 
-    #def open_new_login(self):
+    # def open_new_login(self):
     #    '''
     #    Открываем окно для ввода нового логтна по выбранному подключению
     #    Передаем app и id первого выбранного в списке подключения
@@ -174,7 +175,7 @@ class Connections(tk.Frame):
     def open_logins(self):
         """ Открывааем окно со списком всех логинов выделенного подключения
         Передаем app и id первого выбранного в списке подключения """
-        if (self.treeview_list.focus() != ''):
+        if self.treeview_list.focus() != '':
             id_connection = self.treeview_list.set(self.treeview_list.selection()[0], '#1')
             # чистим форму
             self.app.clear_frm_content_all()
@@ -182,7 +183,7 @@ class Connections(tk.Frame):
             self.logins = logins.Logins(self.app.frm_content_all, self.app, id_connection)
 
             # Companies()
-            #self.connection_types = connection_types.ConnectionTypes(self.app.frm_content_all, self.app)
+            # self.connection_types = connection_types.ConnectionTypes(self.app.frm_content_all, self.app)
         else:
             mb.showwarning('Предупреждение', 'Выберите подключение в списке')
 
@@ -192,7 +193,7 @@ class Connections(tk.Frame):
         :param id_connection_type:
         :param connection_ip:
         :param connection_description:
-        :return none
+        :return No
         """
         # сохраняем фильтр в словарь
         self.connections_filter_dict['id_company'] = id_company
@@ -266,7 +267,7 @@ class Connection(tk.Toplevel):
         lbl_conn_name.pack(side=tk.LEFT, padx=5, pady=5)
         self.ent_conn_name = ttk.Entry(frm_conn_name)
         self.ent_conn_name.pack(fill=tk.X, padx=5, expand=True)
-        self.ent_conn_name.bind("<Control-KeyPress>", self.keys)
+        self.ent_conn_name.bind("<Control-KeyPress>", gp.keys)
 
         # на все свободное место
         self.frm_conn_description = ttk.Frame(frm_conns, relief=tk.RAISED, borderwidth=0)
@@ -275,7 +276,7 @@ class Connection(tk.Toplevel):
         lbl_conn_description.pack(side=tk.LEFT, anchor=tk.N, padx=5, pady=5)
         self.txt_conn_description = tk.Text(self.frm_conn_description)
         self.txt_conn_description.pack(fill=tk.BOTH, pady=5, padx=5, expand=True)
-        self.txt_conn_description.bind("<Control-KeyPress>", self.keys)
+        self.txt_conn_description.bind("<Control-KeyPress>", gp.keys)
 
         # рамка для кнопок
         self.frm_conn_btn = ttk.Frame(frm_conns, relief=tk.RAISED, borderwidth=0)
@@ -283,27 +284,6 @@ class Connection(tk.Toplevel):
         self.btn_cancel = ttk.Button(self.frm_conn_btn, text='Закрыть', command=self.destroy)
         # self.btn_cancel.place(x=305, y=160)
         self.btn_cancel.pack(side=tk.RIGHT, pady=7, padx=7)
-
-    @staticmethod  # статический метод
-    def is_ru_lang_keyboard():
-        """ Проверка текущей раскладки ввода на RU """
-        u = ctypes.windll.LoadLibrary("user32.dll")
-        pf = getattr(u, "GetKeyboardLayout")
-        return hex(pf(0)) == '0x4190419'
-
-    def keys(self, event):
-        """ Определяем метод keys() с учетом раскладки """
-        if self.is_ru_lang_keyboard():
-            if event.keycode == 86:
-                event.widget.event_generate("<<Paste>>")
-            if event.keycode == 67:
-                event.widget.event_generate("<<Copy>>")
-            if event.keycode == 88:
-                event.widget.event_generate("<<Cut>>")
-            if event.keycode == 65535:
-                event.widget.event_generate("<<Clear>>")
-            if event.keycode == 65:
-                event.widget.event_generate("<<SelectAll>>")
 
     def get_comps_list(self):
         """ Процедура заполнения списка компаний """
@@ -346,10 +326,11 @@ class Connection(tk.Toplevel):
         id_connection_type = self.conn_types_list[self.cmb_conn_types_list.current()][0]
         conn_name = self.ent_conn_name.get()
         data = self.app.db.get_connection_ip_for_check_exists(id_company, id_connection_type, conn_name)
-        if (data):
+        if data:
             mb.showwarning('Предупреждение', 'Данное подключение уже существует')
             return False
         return True
+
 
 class NewConnection(Connection):
     """ Класс формы ввода нового подключения """
@@ -370,16 +351,15 @@ class NewConnection(Connection):
 
     def save_new_connection(self):
         """ Процедура сохраненеия нового подключения """
-        if (self.check_empty() and self.check_exists()):  # проверка на пустые поля и дубль
+        if self.check_empty() and self.check_exists():  # проверка на пустые поля и дубль
             # данные с формы
             id_company = self.comps_list[self.cmb_comps_list.current()][0]
             id_connection_type = self.conn_types_list[self.cmb_conn_types_list.current()][0]
             conn_name = self.ent_conn_name.get()
             conn_description = self.txt_conn_description.get('1.0', tk.END)
-            # сохранение
-            self.app.db.insert_new_connection(id_company, id_connection_type, conn_name, conn_description)
+            self.app.db.insert_new_connection(id_company, id_connection_type, conn_name, conn_description)  # сохраняем
             self.app.connections.show_connections()  # выводим список на форму
-            mb.showinfo("Информация", 'Данные сохранены')
+            # mb.showinfo("Информация", 'Данные сохранены')
             self.btn_cancel.invoke()  # имитация клика по кнопке закрыть
 
 
@@ -395,10 +375,10 @@ class FilterConnections(Connection):
     def init_filter_connection(self):
         self.title('Фильтр подключений')
 
-        #        # переопределяем поле для комментария
-        #        self.txt_conn_description = ttk.Entry(self.frm_conn_description)
-        #        #self.txt_conn_description.pack(fill=tk.BOTH, pady=5, padx=5, expand=True)
-        #        self.txt_conn_description.pack(fill=tk.X, padx=5, expand=True)
+        # # переопределяем поле для комментария
+        # self.txt_conn_description = ttk.Entry(self.frm_conn_description)
+        # #self.txt_conn_description.pack(fill=tk.BOTH, pady=5, padx=5, expand=True)
+        # self.txt_conn_description.pack(fill=tk.X, padx=5, expand=True)
 
         self.btn_apply_connection_filter = ttk.Button(self.frm_conn_btn, text='Применить',
                                                       command=self.apply_connection_filter)
