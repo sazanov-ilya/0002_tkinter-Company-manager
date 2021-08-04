@@ -98,21 +98,23 @@ class ConnectionTypes(tk.Frame):
     def delete_connection_types(self):
         """ Процедура удаления выбранных типов подключения """
         if self.connection_types_list.focus() != '':
-            # Цикл удаление нескольких записей
-            # [ids.append(row) for row in self.[ids.append(row) for row in self._list.selection()]_list.selection()]
-            ids = []  # кортеж id выделенных элементов
-            for selection_item in self.connection_types_list.selection():
-                ids.append(self.connection_types_list.set(selection_item, '#1'),)
-            self.app.db.delete_connection_types(ids)
-            self.show_connection_types()  # перезагружаем список
+            answer = mb.askyesno(title='Запрос действия',
+                                 message="Хотите удалить выбранные элементы?")
+            if (answer):  # если Да = True
+                # Цикл удаление нескольких записей
+                # [ids.append(row) for row in self.[ids.append(row) for row in self._list.selection()]_list.selection()]
+                ids = []  # кортеж id выделенных элементов
+                for selection_item in self.connection_types_list.selection():
+                    ids.append(self.connection_types_list.set(selection_item, '#1'),)
+                self.app.db.delete_connection_types(ids)
+                self.show_connection_types()  # перезагружаем список
 
-            ## Запятая (self.tree.set(select, '#1'),)) - для удаление при более 10 записей
-            #for selection_item in self.connection_types_list.selection():
-            #    self.db.c_sqlite3.execute(
-            #        '''DELETE FROM connection_types WHERE id_connection=?''', (self.connection_types_list.set(selection_item, '#1'),)
-            #    )
-            #self.db.conn_sqlite3.commit()
-
+                ## Запятая (self.tree.set(select, '#1'),)) - для удаление при более 10 записей
+                #for selection_item in self.connection_types_list.selection():
+                #    self.db.c_sqlite3.execute(
+                #        '''DELETE FROM connection_types WHERE id_connection=?''', (self.connection_types_list.set(selection_item, '#1'),)
+                #    )
+                #self.db.conn_sqlite3.commit()
         else:
             mb.showwarning('Предупреждение', 'Выберите тип подключения')
 

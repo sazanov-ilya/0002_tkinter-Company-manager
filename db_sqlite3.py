@@ -7,6 +7,21 @@ class DB:
         # self.root = root  # Передаем класс Main
         self.conn_sqlite3 = sqlite3.connect('company_manager.db')
         self.c_sqlite3 = self.conn_sqlite3.cursor()
+        # для каскадного удаления
+        self.c_sqlite3.execute("PRAGMA foreign_keys=ON")
+
+#===
+## https://ru.stackoverflow.com/questions/1051104/sqlalchemy-sqlite-%D0%BD%D0%B5-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%D0%B5%D1%82-%D0%BA%D0%B0%D1%81%D0%BA%D0%B0%D0%B4%D0%BD%D0%BE%D0%B5-%D1%83%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5
+## https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#foreign-key-support
+#from sqlalchemy.engine import Engine
+#from sqlalchemy import event
+#
+#@event.listens_for(Engine, "connect")
+#def set_sqlite_pragma(dbapi_connection, connection_record):
+#    cursor = dbapi_connection.cursor()
+#    cursor.execute("PRAGMA foreign_keys=ON")
+#    cursor.close()
+#===
 
         # Создаем таблицу компаний
         try:

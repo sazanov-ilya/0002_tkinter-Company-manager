@@ -131,21 +131,23 @@ class Companies(tk.Frame):
     def delete_companies(self):
         """ Процедура удаления выбранных компаний """
         if self.companies_table.focus() != '':
-            # Цикл удаление нескольких записей
-            # [ids.append(row) for row in self.companies_table.selection()]
-            ids = []  # кортеж id выделенных элементов
-            for selection_item in self.companies_table.selection():
-                ids.append(self.companies_table.set(selection_item, '#1'),)
-            self.app.db.delete_companies(ids)
-            self.show_companies()  # перезагружаем список
+            answer = mb.askyesno(title='Запрос действия',
+                                 message="Хотите удалить выбранные элементы?")
+            if answer:  # если Да = True
+                # Цикл удаление нескольких записей
+                # [ids.append(row) for row in self.companies_table.selection()]
+                ids = []  # кортеж id выделенных элементов
+                for selection_item in self.companies_table.selection():
+                    ids.append(self.companies_table.set(selection_item, '#1'),)
+                self.app.db.delete_companies(ids)
+                self.show_companies()  # перезагружаем список
 
-            ## Запятая (self.tree.set(select, '#1'),)) - для удаление при более 10 записей
-            #for selection_item in self.companies_table.selection():
-            #    self.db.c_sqlite3.execute(
-            #        '''DELETE FROM companies WHERE id_company=?''', (self.companies_table.set(selection_item, '#1'),)
-            #    )
-            #self.db.conn_sqlite3.commit()
-
+                ## Запятая (self.tree.set(select, '#1'),)) - для удаление при более 10 записей
+                #for selection_item in self.companies_table.selection():
+                #    self.db.c_sqlite3.execute(
+                #        '''DELETE FROM companies WHERE id_company=?''', (self.companies_table.set(selection_item, '#1'),)
+                #    )
+                #self.db.conn_sqlite3.commit()
         else:
             mb.showwarning('Предупреждение', 'Выберите компанию')
 
