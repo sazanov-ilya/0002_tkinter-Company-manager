@@ -65,8 +65,7 @@ class Connections(tk.Frame):
         # 3
         btn_open_connection_update = tk.Button(frm_conns_toolbar, text='Редактировать',
                                                bg='#d7d8e0', bd=0, compound=tk.BOTTOM, relief=tk.GROOVE,
-                                               borderwidth=5, pady=2, padx=2
-                                               # , command=self.open_updade_connection_type
+                                               borderwidth=5, pady=2, padx=2, command=self.open_update_connection
                                                )
         btn_open_connection_update.pack(side=tk.LEFT)
         # 4
@@ -152,6 +151,14 @@ class Connections(tk.Frame):
         else:
             mb.showwarning('Предупреждение', 'Выберите подключение в списке')
 
+    def open_update_connection(self):
+        """ Открываем окно для обновления выбранного подключения """
+        if self.treeview_list.focus() != '':
+            id_connection = self.treeview_list.set(self.treeview_list.selection()[0], '#1')
+            UpdateConnection(self.app, self, id_connection)
+        else:
+            mb.showwarning('Предупреждение', 'Выберите тип подключения')
+
     def open_new_connection(self):
         """ Открываем окно ввода данных нового типа подключения """
         NewConnection(self.app)
@@ -216,8 +223,8 @@ class Connection(tk.Toplevel):
         # self.geometry("500x300+300+200")
         self.init_connections()
         self.app = app  # Передаем класс Main
-        self.get_comps_list()
-        self.get_conn_types_list()
+        #self.get_comps_list()
+        #self.get_conn_types_list()
 
     # Кнопка печать всего в csv
 
@@ -287,7 +294,7 @@ class Connection(tk.Toplevel):
 
     def get_comps_list(self):
         """ Процедура заполнения списка компаний """
-        self.comps_list = self.app.db.get_company_list()
+        self.comps_list = self.app.db.get_company_for_list()
         # first, second- первые 2 элемента, *other - все остальные элементы
         # self.cmb_comps_list['values'] = [second for first, second, *other in data]
         self.cmb_comps_list['values'] = [elem[1] for elem in self.comps_list]
@@ -296,7 +303,7 @@ class Connection(tk.Toplevel):
 
     def get_conn_types_list(self):
         """ Процедура заполнения списка типов подключения """
-        self.conn_types_list = self.app.db.get_connection_type_list()
+        self.conn_types_list = self.app.db.get_connection_type_for_list()
         # first, second- первые 2 элемента, *other - все остальные элементы
         # self.cmb_comps_list['values'] = [second for first, second, *other in data]
         self.cmb_conn_types_list['values'] = [elem[1] for elem in self.conn_types_list]
@@ -332,37 +339,6 @@ class Connection(tk.Toplevel):
         return True
 
 
-class NewConnection(Connection):
-    """ Класс формы ввода нового подключения """
-    def __init__(self, app):  # Конструктор
-        super().__init__(app)
-        self.init_new_connection()
-        self.app = app  # Передаем класс Main
-        # self.db = db  # Передаем класс DB
-        # self.connection_types = connection_types
-
-    def init_new_connection(self):
-        self.title('Добавить подключение')
-
-        # кнопка "Сохранить"
-        self.btn_save = ttk.Button(self.frm_conn_btn, text='Сохранить', command=self.save_new_connection)
-        # self.btn_cancel.place(x=305, y=160)
-        self.btn_save.pack(side=tk.RIGHT, pady=7, padx=7)
-
-    def save_new_connection(self):
-        """ Процедура сохраненеия нового подключения """
-        if self.check_empty() and self.check_exists():  # проверка на пустые поля и дубль
-            # данные с формы
-            id_company = self.comps_list[self.cmb_comps_list.current()][0]
-            id_connection_type = self.conn_types_list[self.cmb_conn_types_list.current()][0]
-            conn_name = self.ent_conn_name.get()
-            conn_description = self.txt_conn_description.get('1.0', tk.END)
-            self.app.db.insert_new_connection(id_company, id_connection_type, conn_name, conn_description)  # сохраняем
-            self.app.connections.show_connections()  # выводим список на форму
-            # mb.showinfo("Информация", 'Данные сохранены')
-            self.btn_cancel.invoke()  # имитация клика по кнопке закрыть
-
-
 class FilterConnections(Connection):
     """ Класс формы ввода фильтров для списка подключений """
     def __init__(self, app):  # Конструктор
@@ -370,7 +346,8 @@ class FilterConnections(Connection):
         self.init_filter_connection()
         self.app = app  # Передаем класс Main
         # self.db = db  # Передаем класс DB
-        # self.connection_types = connection_types
+        self.get_comps_list()  # Список компаний
+        self.get_conn_types_list()  # Список типов подключения
 
     def init_filter_connection(self):
         self.title('Фильтр подключений')
@@ -416,4 +393,94 @@ class FilterConnections(Connection):
         self.app.connections.set_connection_filter(id_company, id_connection_type, conn_name, conn_description)
         # имитация клика по кнопке закрыть
         self.btn_cancel.invoke()
+
+
+class NewConnection(Connection):
+    """ Класс формы ввода нового подключения """
+    def __init__(self, app):  # Конструктор
+        super().__init__(app)
+        self.init_new_connection()
+        self.app = app  # Передаем класс Main
+        # self.db = db  # Передаем класс DB
+        self.get_comps_list()  # Список компаний
+        self.get_conn_types_list()  # Список типов подключения
+
+    def init_new_connection(self):
+        self.title('Добавить подключение')
+
+        # Кнопка "Сохранить"
+        self.btn_save = ttk.Button(self.frm_conn_btn, text='Сохранить', command=self.save_new_connection)
+        # self.btn_cancel.place(x=305, y=160)
+        self.btn_save.pack(side=tk.RIGHT, pady=7, padx=7)
+
+    def save_new_connection(self):
+        """ Процедура сохраненеия нового подключения """
+        if self.check_empty() and self.check_exists():  # проверка на пустые поля и дубль
+            # данные с формы
+            id_company = self.comps_list[self.cmb_comps_list.current()][0]
+            id_connection_type = self.conn_types_list[self.cmb_conn_types_list.current()][0]
+            conn_name = self.ent_conn_name.get()
+            conn_description = self.txt_conn_description.get('1.0', tk.END)
+            self.app.db.insert_new_connection(id_company, id_connection_type, conn_name, conn_description)  # сохраняем
+            self.app.connections.show_connections()  # выводим список на форму
+            # mb.showinfo("Информация", 'Данные сохранены')
+            self.btn_cancel.invoke()  # имитация клика по кнопке закрыть
+
+
+class UpdateConnection(Connection):
+    """ Класс формы обновления подключений """
+    def __init__(self, app, parent, id_connection):  # Конструктор
+        super().__init__(app)
+        self.init_update_connection()
+
+        self.app = app  # Передаем класс Main
+        self.parent = parent  # класс ConnectionTypes
+        self.id_connection = id_connection
+        # self.db = db.DB()  # Передаем класс DB
+
+        self.get_connection_for_update()
+
+    def init_update_connection(self):
+        self.title('Обновить подключение')
+        # Добавляем кнопку "Обновить"
+        btn_update = ttk.Button(self.frm_conn_btn, text='Обновить', command=self.update_connection)
+        #btn_save.place(x=220, y=160)
+        btn_update.pack(side=tk.RIGHT, pady=7, padx=7)
+
+    def get_connection_for_update(self):
+        """ Процедура получения и вывода на форму данных выделенной строки """
+        data = self.app.db.get_connection_for_update_by_id(self.id_connection)
+        # Выводим значения в поля формы
+        self.cmb_comps_list['values'] = [data[1]]
+        self.cmb_comps_list.current(0)
+        self.cmb_comps_list.configure(state="disabled")  # normal, readonly и disabled
+        self.cmb_conn_types_list['values'] = [data[2]]
+        self.cmb_conn_types_list.current(0)
+        self.cmb_conn_types_list.configure(state="disabled")  # normal, readonly и disabled
+        self.ent_conn_name.insert(0, data[3])
+        self.txt_conn_description.insert(1.0, data[4])
+
+    def update_connection(self):
+        """ Процедура обновления типа подключения """
+        if self.check_empty():  # проверка на пустые поля
+            # данные с формы
+            # id_company = self.comps_list[self.cmb_comps_list.current()][0]  # Отключено
+            # id_connection_type = self.conn_types_list[self.cmb_conn_types_list.current()][0]  # Отключено
+            conn_name = self.ent_conn_name.get()
+            conn_description = self.txt_conn_description.get('1.0', tk.END)
+            self.app.db.update_connection_by_id(self.id_connection, conn_name, conn_description)  # Обновляем
+            self.parent.show_connections()  # выводим список на форму
+            # mb.showinfo("Информация", 'Данные сохранены')
+            self.btn_cancel.invoke()  # имитация клика по кнопке закрыть
+
+    #def update_connection_type(self):
+    #    """ Процедура сохранения нового типа подключения """
+    #    if self.check_empty():  # проверка на пустые поля
+    #        # получаем поля с формы
+    #        connection_type_name = self.ent_connection_type_name.get()
+    #        connection_type_description = self.txt_connection_type_description.get('1.0', tk.END)
+    #        self.app.db.update_connection_type_by_id(self.id_connection_type, connection_type_name,
+    #                                                 connection_type_description)  # обновляем
+    #        self.parent.show_connection_types()  # выводим на форму
+    #        self.btn_cancel.invoke()  # имитация клика по "Отмена"
 

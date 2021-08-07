@@ -7,26 +7,15 @@ class DB:
         # self.root = root  # Передаем класс Main
         self.conn_sqlite3 = sqlite3.connect('company_manager.db')
         self.c_sqlite3 = self.conn_sqlite3.cursor()
-        # для каскадного удаления
+        # Для каскадного удаления
         self.c_sqlite3.execute("PRAGMA foreign_keys=ON")
 
-#===
-## https://ru.stackoverflow.com/questions/1051104/sqlalchemy-sqlite-%D0%BD%D0%B5-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%D0%B5%D1%82-%D0%BA%D0%B0%D1%81%D0%BA%D0%B0%D0%B4%D0%BD%D0%BE%D0%B5-%D1%83%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5
-## https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#foreign-key-support
-#from sqlalchemy.engine import Engine
-#from sqlalchemy import event
-#
-#@event.listens_for(Engine, "connect")
-#def set_sqlite_pragma(dbapi_connection, connection_record):
-#    cursor = dbapi_connection.cursor()
-#    cursor.execute("PRAGMA foreign_keys=ON")
-#    cursor.close()
-#===
-
-        # Создаем таблицу компаний
+        #####################
+        # Таблица companies #
+        #####################
         try:
             self.c_sqlite3.execute(
-                '''CREATE TABLE IF NOT EXISTS companies (id_company integer primary key,
+                '''CREATE TABLE IF NOT EXISTS companies (id_company integer primary key autoincrement not null,
                 company_name text, company_description text)'''
             )
             self.conn_sqlite3.commit()
@@ -39,21 +28,26 @@ class DB:
             # ??? self.master.title("Оставить отзыв")
             #self.master.destroy()
 
-        # Создаем таблицу типов доступа
+        ############################
+        # Таблица connection_types #
+        ############################
         try:
             self.c_sqlite3.execute(
-                '''CREATE TABLE IF NOT EXISTS connection_types (id_connection_type integer primary key,
-                connection_type_name text, connection_type_description text)'''
+                '''CREATE TABLE IF NOT EXISTS connection_types 
+                (id_connection_type integer primary key autoincrement not null, connection_type_name text,
+                connection_type_description text)'''
             )
             self.conn_sqlite3.commit()
         except sqlite3.Error as err:
             mb.showerror("ОШИБКА!", err.__str__())
             # self.root.destroy()
 
-        # Создаем таблицу подключений
+        #######################
+        # Таблица connections #
+        #######################
         try:
             self.c_sqlite3.execute(
-                '''CREATE TABLE IF NOT EXISTS connections (id_connection integer primary key,
+                '''CREATE TABLE IF NOT EXISTS connections (id_connection integer primary key autoincrement not null,
                 id_company integer,id_connection_type integer, connection_ip text, connection_description text,
                 FOREIGN KEY(id_company) REFERENCES companies(id_company) ON DELETE CASCADE,
                 FOREIGN KEY(id_connection_type) REFERENCES connection_types(id_connection_type) ON DELETE CASCADE)'''
@@ -63,10 +57,12 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
             #self.root.destroy()
 
-        # Создаем таблицу логинов
+        ##################
+        # Таблица logins #
+        ##################
         try:
             self.c_sqlite3.execute(
-                '''CREATE TABLE IF NOT EXISTS logins (id_login integer primary key,
+                '''CREATE TABLE IF NOT EXISTS logins (id_login integer primary key autoincrement not null,
                 id_connection integer, login_name text, login_password text, login_description text,
                 FOREIGN KEY(id_connection) REFERENCES connections(id_connection) ON DELETE CASCADE)'''
             )
@@ -75,8 +71,9 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
             # self.root.destroy()
 
-
-# companies
+    #####################
+    # Таблица companies #
+    #####################
     def get_company_by_id(self, id_company):
         """ Процедура возврата данных компании по переданному id
         :param id_company:
@@ -113,7 +110,7 @@ class DB:
             return None
 
     def get_company_list_by_filter(self, company_name, company_description):
-        """ Процедура возврата результата списка компаний согласно переданных фильтров
+        """ Процедура возврата результата списка компаний согласно фильтров
         :param company_name: Фильтр по названию компании
         :param company_description: Фильтр по описанию для компании
         :return: набор кортежей со списком компаний согласно фильтров
@@ -173,7 +170,7 @@ class DB:
 #        [self.companies_list.insert('', 'end', values=row) for row in self.db.c_sqlite3.fetchall()]
         return data
 
-    def get_company_list(self):
+    def get_company_for_list(self):
         """ Процедура возвращает список компаний для выпадающего списка
         :return: набор кортежей id и company_name
         """
@@ -222,13 +219,12 @@ class DB:
             # self.root.destroy()
 
     def update_company_by_id(self, id_company, company_name, company_description):
-        """ Процедура обновления данных первой выделенной в списке компании по ее id
+        """ Процедура обновления данных компании по ее id
+        :param id_company: Id компании
         :param company_name: Название компании
         :param company_description: Комментарий для компании
         :return No
         """
-
-        # передаем все поля и id как первый элемент из списка выделенных и порядковый номер столбца
         try:
             self.c_sqlite3.execute(
                 '''UPDATE companies SET company_name=?, company_description=? WHERE id_company=?''',
@@ -254,8 +250,9 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
             # self.root.destroy()
 
-
-# connection_types
+    ############################
+    # Таблица connection_types #
+    ############################
     def get_connection_type_by_id(self, id_connection_type):
         """ Процедура возврата данных типа подключения по переданному id
         :param id_connection_type: id типа подключения
@@ -359,7 +356,7 @@ class DB:
         # [self.connection_types_list.insert('', 'end', values=row) for row in self.db.c_sqlite3.fetchall()]
         return data
 
-    def get_connection_type_list(self):
+    def get_connection_type_for_list(self):
         """ Процедура возвращает список типов подключений
         :return: набор кортежей id и connection_type_name
         """
@@ -436,11 +433,29 @@ class DB:
         except sqlite3.Error as err:
             mb.showerror("ОШИБКА!", err.__str__())
 
-# connections
+    #######################
+    # Таблица connections #
+    #######################
+    def get_connection_by_id(self, id_connection):
+        """ Процедура возврата данных подключения по переданному id_connection
+        :param id_connection: id подключения
+        :return: возвращает только одну запись по id
+        """
+        try:
+            self.c_sqlite3.execute(
+                '''SELECT id_connection, id_company, id_connection_type, connection_ip, connection_description
+                FROM connections WHERE id_connection=?''', [id_connection]
+            )
+        except sqlite3.Error as err:
+            mb.showerror("ОШИБКА!", err.__str__())
+            # self.root.destroy()
+        data = self.c_sqlite3.fetchone()  # возвращает только одну запись
+        return data
+
     def get_company_connection_type_by_id_connection(self, id_connection):
-        """ Процедкра возврата названия компании и названия пипа подключения по id подключения
+        """ Процедура возвращает названия компании и типа подключения по id_connection
         :param id_connection:
-        :return: название компании и тип подклюжчения
+        :return: названия компании и тип подклюжчения
         """
         try:
             self.c_sqlite3.execute(
@@ -456,6 +471,25 @@ class DB:
         data = self.c_sqlite3.fetchone()  # возвращает только одну запись
         return data
 
+    def get_connection_for_update_by_id(self, id_connection):
+        """ Процедура возвращает данные подключения для формы обновления по id_connection
+        :param id_connection:
+        :return: названия компании и тип подклюжчения
+        """
+        try:
+            self.c_sqlite3.execute(
+                '''SELECT connections.id_connection, companies.company_name, connection_types.connection_type_name,
+                connections.connection_ip, connections.connection_description
+                FROM connections, companies, connection_types
+                WHERE  connections.id_company=companies.id_company
+                AND connections.id_connection_type = connection_types.id_connection_type
+                AND connections.id_connection = ?''', [id_connection]
+            )
+        except sqlite3.Error as err:
+            mb.showerror("ОШИБКА!", err.__str__())
+            # self.root.destroy()
+        data = self.c_sqlite3.fetchone()  # возвращает только одну запись
+        return data
 
     def get_connections_by_filter(self, id_company, id_connection_type, connection_ip, connection_description):
         """ Процедура возврата списка подключений согласно фильтра
@@ -529,38 +563,6 @@ class DB:
         [data.append(row) for row in self.c_sqlite3.fetchall()]
         return data
 
-    def insert_new_connection(self, id_company, id_connection_type, connection_ip, connection_description):
-        """ Процедура сохранения нового подключения
-        :param id_company:
-        :param id_connection_type:
-        :param connection_ip:
-        :param connection_description:
-        :return: No
-        """
-        try:
-            self.c_sqlite3.execute(
-                '''INSERT INTO connections(id_company, id_connection_type, connection_ip, connection_description) 
-                VALUES(?, ?, ?, ?)''',
-                (id_company, id_connection_type, connection_ip.lower(), connection_description)
-            )
-            self.conn_sqlite3.commit()
-        except sqlite3.Error as err:
-            mb.showerror("ОШИБКА!", err.__str__())
-
-    def delete_connections(self, ids):
-        """ Процедура удаления подключений
-        :param ids: Список id подключений
-        :return: No
-        """
-        try:
-            for id in ids:
-                self.c_sqlite3.execute(
-                    '''DELETE FROM connections WHERE id_connection=?''', [id]
-                )
-                self.conn_sqlite3.commit()
-        except sqlite3.Error as err:
-            mb.showerror("ОШИБКА!", err.__str__())
-
     def get_connection_ip_for_check_exists(self, id_company, id_connection_type, connection_ip):
         """ Процедура проверки наличия подключения по компании, типу подключения и ip/домену (проверка на дубль)
         :param id_company:
@@ -582,6 +584,97 @@ class DB:
             return data[0]
         else:
             return None
+
+    def insert_new_connection(self, id_company, id_connection_type, connection_ip, connection_description):
+        """ Процедура сохранения нового подключения
+        :param id_company:
+        :param id_connection_type:
+        :param connection_ip:
+        :param connection_description:
+        :return: No
+        """
+        try:
+            self.c_sqlite3.execute(
+                '''INSERT INTO connections(id_company, id_connection_type, connection_ip, connection_description) 
+                VALUES(?, ?, ?, ?)''',
+                (id_company, id_connection_type, connection_ip.lower(), connection_description)
+            )
+            self.conn_sqlite3.commit()
+        except sqlite3.Error as err:
+            mb.showerror("ОШИБКА!", err.__str__())
+
+    def update_connection_by_id(self, id_connection, connection_ip, connection_description):
+        """ Процедура обновления подключения по id_connection
+        :param id_connection:
+        :param connection_ip:
+        :param connection_description:
+        :return: No
+        """
+        try:
+            self.c_sqlite3.execute(
+                '''UPDATE connections SET connection_ip=?, connection_description=?
+                WHERE id_connection=?''',
+                (connection_ip, connection_description, id_connection)
+            )
+            self.conn_sqlite3.commit()
+        except sqlite3.Error as err:
+            mb.showerror("ОШИБКА!", err.__str__())
+
+    # curs.execute("SELECT weight FROM Equipment WHERE name = :name AND price = :price",
+    #         {name: 'lead', price: 24})
+
+
+
+    def delete_connections(self, ids):
+        """ Процедура удаления подключений
+        :param ids: Список id подключений
+        :return: No
+        """
+        try:
+            for id in ids:
+                self.c_sqlite3.execute(
+                    '''DELETE FROM connections WHERE id_connection=?''', [id]
+                )
+                self.conn_sqlite3.commit()
+        except sqlite3.Error as err:
+            mb.showerror("ОШИБКА!", err.__str__())
+
+    ##################
+    # Таблица logins #
+    ##################
+    def get_login_by_id(self, id_login):
+        """ Процедура возврата данных логина по переданному id_login
+        :param id_login:
+        :return: Кортеж значений
+        """
+        try:
+            self.c_sqlite3.execute(
+                '''SELECT id_login, login_name, login_password, login_description 
+                FROM logins WHERE id_login=?''', [id_login]
+            )
+        except sqlite3.Error as err:
+            mb.showerror("ОШИБКА!", err.__str__())
+            # self.root.destroy()
+        data = self.c_sqlite3.fetchone()  # возвращает только одну запись
+        return data
+
+    def get_logins_list_by_id_connection(self, id_connection):
+        """ Процедура возврата списка логинов по id_connection (вывод на форму)
+        :param id_connection:
+        :return: Набор кортежей со списком логинов согласно фильтров
+        """
+        try:
+            self.c_sqlite3.execute(
+                '''SELECT id_login, login_name, login_password, login_description
+                FROM logins WHERE id_connection = ?''',
+                [id_connection]
+            )
+        except sqlite3.Error as err:
+            mb.showerror("ОШИБКА!", err.__str__())
+            # self.root.destroy()
+        data = []  # запрос возвращает набор кортежей
+        [data.append(row) for row in self.c_sqlite3.fetchall()]
+        return data
 
     def get_login_name_for_check_exists(self, id_connection, login_name):
         """ Процедура проверки наличия логина по id_connection и login_name (проверка на дубль)
@@ -621,42 +714,23 @@ class DB:
             mb.showerror("ОШИБКА!", err.__str__())
             # self.root.destroy()
 
-# logins
-    def get_logins_list_by_id(self, id_login):
-        """ Процедура возврата данных логина по переданному id
+    def update_login_by_id(self, id_login, login_name, login_password, login_description):
+        """ Процедура обновления логина по id_login
         :param id_login:
-        :return: Кортеж значений
+        :param login_name:
+        :param login_password:
+        :param login_description:
+        :return: No
         """
         try:
             self.c_sqlite3.execute(
-                '''SELECT id_login, login_name, login_password, login_description 
-                FROM logins WHERE id_login=?''', [id_login]
+                '''UPDATE logins SET login_name=?, login_password=?, login_description=?
+                WHERE id_login=?''',
+                (login_name, login_password, login_description, id_login)
             )
+            self.conn_sqlite3.commit()
         except sqlite3.Error as err:
             mb.showerror("ОШИБКА!", err.__str__())
-            # self.root.destroy()
-        data = self.c_sqlite3.fetchone()  # возвращает только одну запись
-        print(data)
-        return data
-
-
-    def get_logins_list_by_id_connection(self, id_connection):
-        """ Процедура возврата списка компаний по id_connection
-        :param id_connection:
-        :return: Набор кортежей со списком логинов согласно фильтров
-        """
-        try:
-            self.c_sqlite3.execute(
-                '''SELECT id_login, login_name, login_password, login_description
-                FROM logins WHERE id_connection = ?''',
-                [id_connection]
-            )
-        except sqlite3.Error as err:
-            mb.showerror("ОШИБКА!", err.__str__())
-            # self.root.destroy()
-        data = []  # запрос возвращает набор кортежей
-        [data.append(row) for row in self.c_sqlite3.fetchall()]
-        return data
 
     def delete_logins(self, ids):
         """ Процедура удаления логинов

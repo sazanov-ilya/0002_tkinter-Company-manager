@@ -100,7 +100,7 @@ class ConnectionTypes(tk.Frame):
         if self.connection_types_list.focus() != '':
             answer = mb.askyesno(title='Запрос действия',
                                  message="Хотите удалить выбранные элементы?")
-            if (answer):  # если Да = True
+            if answer:  # если Да = True
                 # Цикл удаление нескольких записей
                 # [ids.append(row) for row in self.[ids.append(row) for row in self._list.selection()]_list.selection()]
                 ids = []  # кортеж id выделенных элементов
@@ -138,7 +138,7 @@ class ConnectionTypes(tk.Frame):
         """ Процедура фильтрации по введенным типу подключения и описанию
         :param connection_type_name: Название типа подключения
         :param connection_type_description: Описание типа подключения
-        :return none
+        :return No
         """
         connection_types_filter_dict['connection_type_name'] = connection_type_name  # сохраняем фильтр в словарь
         connection_types_filter_dict['connection_type_description'] = connection_type_description
@@ -248,7 +248,7 @@ class NewConnectionType(ConnectionType):
 
 
 class UpdateConnectionType(ConnectionType):
-    """ Класс формы обновления подключений """
+    """ Класс формы обновления типов подключений """
     def __init__(self, app, parent, id_connection_type):  # Конструктор
         super().__init__(app)
         self.init_update_connection_type()
@@ -259,13 +259,13 @@ class UpdateConnectionType(ConnectionType):
         self.get_connection_type_for_update()
 
     def init_update_connection_type(self):
-        self.title('Обновить подключение')
-        btn_save = ttk.Button(self, text='Обновить', command=self.update_connection_type)
-        btn_save.place(x=220, y=160)
+        self.title('Обновить тип подключение')
+        btn_update = ttk.Button(self, text='Обновить', command=self.update_connection_type)
+        btn_update.place(x=220, y=160)
 
     def get_connection_type_for_update(self):
         """ Процедура получения и вывода на форму данных выделенной строки """
-        print(self.id_connection_type)
+        # print(self.id_connection_type)
         data = self.app.db.get_connection_type_by_id(self.id_connection_type)
         # Выводим значения в поля формы
         self.ent_connection_type_name.insert(0, data[1])

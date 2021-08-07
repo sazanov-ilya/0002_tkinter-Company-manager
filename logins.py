@@ -5,7 +5,8 @@ import tkinter.messagebox as mb
 #import sqlite3
 
 # импортируем свои модули
-import new_login_by_id_connection as new_login_by_id_connection
+# import new_login_by_id_connection as new_login_by_id_connection
+import login as login
 import connections as connections
 
 
@@ -62,8 +63,8 @@ class Logins(tk.Frame):
         # 3
         btn_open_update_login = tk.Button(frm_logins_top_toolbar, text='Редактировать',
                                           bg='#d7d8e0', bd=0, compound=tk.BOTTOM, relief=tk.GROOVE,
-                                          borderwidth=5, pady=2, padx=2
-                                          #, command=self.open_updade_connection_type
+                                          borderwidth=5, pady=2, padx=2,
+                                          command=self.open_update_login
                                           )
         btn_open_update_login.pack(side=tk.LEFT, padx=5, pady=7)
         # 4
@@ -148,7 +149,9 @@ class Logins(tk.Frame):
         id_login = self.logins_table.set(self.logins_table.selection()[0], '#1')
 
         data_company = self.app.db.get_company_connection_type_by_id_connection(self.id_connection)
-        data_login = self.app.db.get_logins_list_by_id(id_login)
+        data_login = self.app.db.get_login_by_id(id_login)
+
+        #print(data_login)
 
         #clipboard =   data_login[1] + '\n' + data_login[2] + '\n' + data_login[3]
         clipboard = data_company[1] + '\n===\n' + data_company[2] + '\n===\n' + \
@@ -183,10 +186,18 @@ class Logins(tk.Frame):
         [self.logins_table.insert('', 'end', values=row) for row in data]
 
     def open_new_login(self):
-        """ Открываем окно для ввода нового логтна по выбранному подключению
+        """ Открываем окно для ввода нового логина по выбранному подключению
         Передаем app и id первого выбранного в списке подключения """
-        new_login_by_id_connection.NewLoginByIdConnection(self.app, self, self.id_connection)
+        login.NewLogin(self.app, self, self.id_connection)
         self.show_logins_by_id_connection()
+
+    def open_update_login(self):
+        """ Открываем окно для обновления выбранного подключения """
+        if self.logins_table.focus() != '':
+            id_login = self.logins_table.set(self.logins_table.selection()[0], '#1')
+            login.UpdateLogin(self.app, self, self.id_connection, id_login)
+        else:
+            mb.showwarning('Предупреждение', 'Выберите тип подключения')
 
     def open_connections(self):
         """ Возврат на окно со списком подключений """

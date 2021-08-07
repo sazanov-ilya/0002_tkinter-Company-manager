@@ -9,6 +9,7 @@ def is_ru_lang_keyboard():
     return hex(pf(0)) == '0x4190419'
 
 
+# Для Copy-Paste в раскладке RU
 def keys(event):
     """ Определяем метод keys() с учетом раскладки """
     if is_ru_lang_keyboard():

@@ -12,10 +12,10 @@ import connections as connections
 import logins as logins
 
 
-# закрываем на крестик
-def on_closing():
-    if mb.askokcancel("Выход из приложения", "Хотите выйти из приложения?"):
-        root.destroy()
+# # закрываем на крестик
+# def on_closing():
+#    if mb.askokcancel("Выход из приложения", "Хотите выйти из приложения?"):
+#        root.destroy()
 
 
 # класс основной формы
@@ -115,7 +115,8 @@ class Main(tk.Frame):
 if __name__ == '__main__':
     root = tk.Tk()
 
-    root.protocol("WM_DELETE_WINDOW", on_closing)  # клик по крестику
+    # # закрываем на крестик
+    # root.protocol("WM_DELETE_WINDOW", on_closing)  # клик по крестику
 
     db = db.DB()  # Добавляем класс DB
     app = Main(root)  # добавляем класс Main
@@ -125,7 +126,8 @@ if __name__ == '__main__':
     root.geometry("700x450+300+200")
     # root.resizable(False, False)
 
-    root.event_add('<<Paste>>', '<Control-igrave>')
-    root.event_add("<<Copy>>", "<Control-ntilde>")
+    # отключил 20210807 (не помню для чего)
+    #root.event_add('<<Paste>>', '<Control-igrave>')
+    #root.event_add("<<Copy>>", "<Control-ntilde>")
 
     root.mainloop()
