@@ -1,14 +1,44 @@
+import os
+import errno
 import sqlite3
 import tkinter.messagebox as mb
+
+
+path_db = 'db'
+
+
+def create_db_dir():
+    # path = os.curdir  # Текущая папка
+    # path = os.getcwd()  # Абсолютный путь
+    try:
+        os.makedirs(path_db)
+    except OSError as exception:
+        # Игнорируем ошибку "папка уже создана", но выводим все остальные
+        if exception.errno != errno.EEXIST:
+            mb.showerror("ОШИБКА!", exception)
+            raise
+
+    #if not os.path.exists('db'):  # Если на существует
+    #    os.makedirs('db')
+    #    print('Создана папка')
+
+    #print(os.walk(path))
+    #for dirs, folder, files in os.walk(path):
+    #    print('Выбранный каталог: ', dirs)
+    #    print('Вложенные папки: ', folder)
+    #    print('Файлы в папке: ', files)
+    #    print('\n')
+    #    # Отобразит только корневую папку и остановит цикл
+    #    break
+
 
 class DB:
     """ Класс подвлючения к БД sqlite3 """
     def __init__(self):
-        # self.root = root  # Передаем класс Main
-        self.conn_sqlite3 = sqlite3.connect('company_manager.db')
+        create_db_dir()  # Создаем папку для БД
+        self.conn_sqlite3 = sqlite3.connect(path_db + '/' + 'company_manager.db')
         self.c_sqlite3 = self.conn_sqlite3.cursor()
-        # Для каскадного удаления
-        self.c_sqlite3.execute("PRAGMA foreign_keys=ON")
+        self.c_sqlite3.execute("PRAGMA foreign_keys=ON")  # Для каскадного удаления
 
         #####################
         # Таблица companies #

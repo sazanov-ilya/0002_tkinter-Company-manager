@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as mb
-# import tkinter.ttk as ttk
 #import sqlite3
 
 # импортируем свои модули
@@ -10,7 +9,8 @@ import __general_procedures as gp
 
 
 # словарь фильтров
-companies_filter_dict = {'company_name': '', 'company_description': ''}
+# companies_filter_dict = {'company_name': '', 'company_description': ''}
+companies_filter_dict = {}
 
 
 class Companies(tk.Frame):
@@ -38,10 +38,10 @@ class Companies(tk.Frame):
 
         # Кнопки
         # 1
-        btn_open_company_filter = tk.Button(frm_companies_toolbar, text='Фильтр', bg='#d7d8e0',
-                                            bd=0, compound=tk.BOTTOM, relief=tk.GROOVE, borderwidth=5,
-                                            pady=2, padx=2, command=self.open_company_filter)
-        btn_open_company_filter.pack(side=tk.LEFT)
+        self.btn_open_company_filter = tk.Button(frm_companies_toolbar, text='Фильтр', bg='#d7d8e0',
+                                                 bd=0, compound=tk.BOTTOM, relief=tk.GROOVE, borderwidth=5,
+                                                 pady=2, padx=2, command=self.open_company_filter)
+        self.btn_open_company_filter.pack(side=tk.LEFT)
         # 2
         btn_open_company_new = tk.Button(frm_companies_toolbar, text='Добавить', bg='#d7d8e0',
                                          bd=0, compound=tk.BOTTOM, relief=tk.GROOVE, borderwidth=5,
@@ -59,7 +59,7 @@ class Companies(tk.Frame):
         btn_open_company_delete.pack(side=tk.LEFT)
         # 5
         # Добавить показ всех подключений по выбранной компании
-        btn_open_company_delete = tk.Button(frm_companies_toolbar, text='Показать все', bg='#d7d8e0',
+        btn_open_company_delete = tk.Button(frm_companies_toolbar, text='Сохранить все', bg='#d7d8e0',
                                             bd=0, compound=tk.BOTTOM, relief=tk.GROOVE, borderwidth=5,
                                             pady=2, padx=2
                                             #, command=self.delete_companies
@@ -156,14 +156,22 @@ class Companies(tk.Frame):
         NewCompany(self.app, self)
 
     def open_update_company(self):
-        """ Открываем окно для обновления выбранной компании """
+        """ Открываем окно обновления выбранной компании """
         if self.companies_table.focus() != '':
             UpdateCompany(self.app, self, self.companies_table.set(self.companies_table.selection()[0], '#1'))
         else:
             mb.showwarning('Предупреждение', 'Выберите компанию')
 
     def open_company_filter(self):
+        """ Открываем окно фильтров """
         FilterCompany(self.app)
+
+    def color_company_filter(self):
+        """ Процедкра смены цвета кнопки Фильтр """
+        if companies_filter_dict:  # Если есть фильтры
+            self.btn_open_company_filter.configure(bg='#A9A9A9')
+        else:
+            self.btn_open_company_filter.configure(bg='#d7d8e0')
 
     def apply_company_filter(self, company_name, company_description):
         """ Процедура фильтрации по введенной компании и описанию
@@ -171,15 +179,25 @@ class Companies(tk.Frame):
         :param company_description: Описание для компании
         :return none
         """
-        companies_filter_dict['company_name'] = company_name  # сохраняем фильтр в словарь
-        companies_filter_dict['company_description'] = company_description
-        self.show_companies()  # перезегружаем список компаний
+        companies_filter_dict.clear()  # Чистим словарь
+        # Пересоздаем словарь
+        if company_name:
+            companies_filter_dict['company_name'] = company_name
+        if company_description:
+            companies_filter_dict['company_description'] = company_description
+
+        self.color_company_filter()  # Цвет кнопки фильтра
+        self.show_companies()  # Перезегружаем список компаний
 
     def clear_company_filter(self):
         """ Очищаем фильтр компаний """
-        for key in companies_filter_dict:
-            companies_filter_dict[key] = ''  # обнуляем ключи
-            self.show_companies()     # перезегружаем список компаний
+        #for key in companies_filter_dict:
+        #    companies_filter_dict[key] = ''  # Обнуляем ключи
+        #    self.show_companies()     # Перезегружаем список компаний
+        companies_filter_dict.clear()
+
+        self.color_company_filter()  # Цвет кнопки фильтра
+        self.show_companies()  # Перезегружаем список компаний
 
 
 class Company(tk.Toplevel):

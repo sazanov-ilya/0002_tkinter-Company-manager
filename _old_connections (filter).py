@@ -12,16 +12,17 @@ import logins as logins
 
 
 # словать фильтров
-# connections_filter_dict = {'id_company': '', 'id_connection_type': '', 'connection_ip': '', 'connection_description': ''}
+# работает при переходах между вкладками
+# connections_filter_dict = {'connection_type_name': '', 'connection_type_description': ''}
 connections_filter_dict = {}
 
 
 class Connections(tk.Frame):
-    """ Базовый класс формы списка подключений """
+    """ Базовый класс формы списка всех подключений """
     def __init__(self, root, app):
         super().__init__(root)
         self.init_connections()
-        self.app = app  # Main
+        self.app = app  # Передаем класс Main
 
         self.show_connections()
 
@@ -32,6 +33,12 @@ class Connections(tk.Frame):
         # для отображения на полное окно
         self.pack(fill=tk.BOTH, expand=True)
 
+        # cловарь фильтров
+        self.connections_filter_dict = {'id_company': '',
+                                        'id_connection_type': '',
+                                        'connection_ip': '',
+                                        'connection_description': ''
+                                        }
         # базовая рамка для модуля
         # frm_conns = ttk.Frame(app.frm_content_all, relief=tk.RAISED, borderwidth=3)
         frm_conns = ttk.Frame(self, relief=tk.RAISED, borderwidth=0)
@@ -43,27 +50,31 @@ class Connections(tk.Frame):
 
         # Кнопки
         # 1
-        self.btn_open_connection_filter = tk.Button(frm_conns_toolbar, text='Фильтр', bg='#d7d8e0', bd=0,
-                                                    compound=tk.BOTTOM, relief=tk.GROOVE, borderwidth=5, pady=2, padx=2,
-                                                    command=self.open_filter_connection)
-        self.btn_open_connection_filter.pack(side=tk.LEFT)
+        btn_open_connection_filter = tk.Button(frm_conns_toolbar, text='Фильтр',
+                                               bg='#d7d8e0', bd=0, compound=tk.BOTTOM, relief=tk.GROOVE,
+                                               borderwidth=5, pady=2, padx=2,
+                                               command=self.open_filter_connection
+                                               )
+        btn_open_connection_filter.pack(side=tk.LEFT)
         # 2
         btn_open_connection_new = tk.Button(frm_conns_toolbar, text='Добавить',
                                             bg='#d7d8e0', bd=0, compound=tk.BOTTOM, relief=tk.GROOVE, borderwidth=5,
                                             pady=2, padx=2,
-                                            command=self.open_new_connection)
+                                            command=self.open_new_connection
+                                            )
         btn_open_connection_new.pack(side=tk.LEFT)
         # 3
         btn_open_connection_update = tk.Button(frm_conns_toolbar, text='Редактировать',
                                                bg='#d7d8e0', bd=0, compound=tk.BOTTOM, relief=tk.GROOVE,
-                                               borderwidth=5, pady=2, padx=2,
-                                               command=self.open_update_connection)
+                                               borderwidth=5, pady=2, padx=2, command=self.open_update_connection
+                                               )
         btn_open_connection_update.pack(side=tk.LEFT)
         # 4
         btn_open_connection_types_delete = tk.Button(frm_conns_toolbar, text='Удалить',
                                                      bg='#d7d8e0', bd=0, compound=tk.BOTTOM, relief=tk.GROOVE,
                                                      borderwidth=5, pady=2, padx=2,
-                                                     command=self.delete_connections)
+                                                     command=self.delete_connections
+                                                     )
         btn_open_connection_types_delete.pack(side=tk.LEFT)
         ## 6
         #btn_open_new_login = tk.Button(frm_conns_toolbar, text='Добавить логин',
@@ -118,15 +129,12 @@ class Connections(tk.Frame):
         """ Процедура перезаполнения списка тиов подключения согласно данных БД и фильтров """
         # чистим
         [self.treeview_list.delete(i) for i in self.treeview_list.get_children()]
-        # получаем данные фильтра
-        id_company = connections_filter_dict.get('id_company', '')
-        id_connection_type = connections_filter_dict.get('id_connection_type', '')
-        connection_ip = connections_filter_dict.get('connection_ip', '')
-        connection_description = connections_filter_dict.get('connection_description', '')
-        data = self.app.db.get_connections_by_filter(id_company,
-                                                     id_connection_type,
-                                                     connection_ip,
-                                                     connection_description)
+        # получаем данные
+        data = self.app.db.get_connections_by_filter(self.connections_filter_dict.get('id_company', ''),
+                                                     self.connections_filter_dict.get('id_connection_type', ''),
+                                                     self.connections_filter_dict.get('connection_ip', ''),
+                                                     self.connections_filter_dict.get('connection_description', '')
+                                                     )
         # выводим данные
         [self.treeview_list.insert('', 'end', values=row) for row in data]
 
@@ -142,7 +150,7 @@ class Connections(tk.Frame):
                 self.app.db.delete_connections(ids)
                 self.show_connections()  # перезагружаем список
         else:
-            mb.showwarning('Предупреждение', 'Выберите подключение')
+            mb.showwarning('Предупреждение', 'Выберите подключение в списке')
 
     def open_update_connection(self):
         """ Открываем окно для обновления выбранного подключения """
@@ -150,50 +158,27 @@ class Connections(tk.Frame):
             id_connection = self.treeview_list.set(self.treeview_list.selection()[0], '#1')
             UpdateConnection(self.app, self, id_connection)
         else:
-            mb.showwarning('Предупреждение', 'Выберите подключение')
+            mb.showwarning('Предупреждение', 'Выберите тип подключения')
 
     def open_new_connection(self):
-        """ Открываем окно ввода данных нового подключения """
+        """ Открываем окно ввода данных нового типа подключения """
         NewConnection(self.app)
 
     def open_filter_connection(self):
-        """ Открываем окно фильтров списка подключений """
+        """ Открываем окно ввода данных нового типа подключения """
         FilterConnections(self.app)
 
-    def color_connection_filter(self):
-        """ Процедкра смены цвета кнопки Фильтр """
-        if connections_filter_dict:  # Если есть фильтры
-            self.btn_open_connection_filter.configure(bg='#A9A9A9')
-        else:
-            self.btn_open_connection_filter.configure(bg='#d7d8e0')
-
-    def set_connection_filter(self, id_company, id_connection_type, connection_ip, connection_description):
-        """ Процедура применения фильтра
-        :param id_company:
-        :param id_connection_type:
-        :param connection_ip:
-        :param connection_description:
-        :return: No
-        """
-        connections_filter_dict.clear()  # Чистим словарь
-        # Пересоздаем словарь
-        if id_company:
-            connections_filter_dict['id_company'] = id_company
-        if id_connection_type:
-            connections_filter_dict['id_connection_type'] = id_connection_type
-        if connection_ip:
-            connections_filter_dict['connection_ip'] = connection_ip
-        if connection_description:
-            connections_filter_dict['connection_description'] = connection_description
-
-        self.color_connection_filter()  # Цвет кнопки фильтра
-        self.show_connections()  # Перезегружаем список
-
-    def clear_connection_filter(self):
-        """ Процедура очистки фильтров подключений """
-        connections_filter_dict.clear()  # Чистим словарь
-        self.color_connection_filter()  # Цвет кнопки фильтра
-        self.show_connections()  # Перезегружаем список
+    # def open_new_login(self):
+    #    '''
+    #    Открываем окно для ввода нового логтна по выбранному подключению
+    #    Передаем app и id первого выбранного в списке подключения
+    #    '''
+    #    if (self.treeview_list.focus() != ''):
+    #        id_connection = self.treeview_list.set(self.treeview_list.selection()[0], '#1')
+    #        #NewLogin(self.app, self.treeview_list.set(self.treeview_list.selection()[0], '#1'))
+    #        new_login_by_id_connection.NewLoginByIdConnection(self.app, id_connection)
+    #    else:
+    #        mb.showwarning('Предупреждение', 'Выберите подключение в списке')
 
     def open_logins(self):
         """ Открывааем окно со списком всех логинов выделенного подключения
@@ -210,26 +195,26 @@ class Connections(tk.Frame):
         else:
             mb.showwarning('Предупреждение', 'Выберите подключение в списке')
 
-#    def set_connection_filter(self, id_company, id_connection_type, connection_ip, connection_description):
-#        """ Сеттер для словаря фильтра
-#        :param id_company:
-#        :param id_connection_type:
-#        :param connection_ip:
-#        :param connection_description:
-#        :return No
-#        """
-#        # сохраняем фильтр в словарь
-#        self.connections_filter_dict['id_company'] = id_company
-#        self.connections_filter_dict['id_connection_type'] = id_connection_type
-#        self.connections_filter_dict['connection_ip'] = connection_ip
-#        self.connections_filter_dict['connection_description'] = connection_description
-#        self.show_connections()  # перезагружаем список
-#
-#    def clear_connection_filter(self):
-#        """ Процедура очистки фильтра подключений """
-#        for key in self.connections_filter_dict:
-#            self.connections_filter_dict[key] = ''  # обнуляем ключи
-#            self.show_connections()  # перезегружаем список
+    def set_connection_filter(self, id_company, id_connection_type, connection_ip, connection_description):
+        """ Сеттер для словаря фильтра
+        :param id_company:
+        :param id_connection_type:
+        :param connection_ip:
+        :param connection_description:
+        :return No
+        """
+        # сохраняем фильтр в словарь
+        self.connections_filter_dict['id_company'] = id_company
+        self.connections_filter_dict['id_connection_type'] = id_connection_type
+        self.connections_filter_dict['connection_ip'] = connection_ip
+        self.connections_filter_dict['connection_description'] = connection_description
+        self.show_connections()  # перезагружаем список
+
+    def clear_connection_filter(self):
+        """ Процедура очистки фильтра подключений """
+        for key in self.connections_filter_dict:
+            self.connections_filter_dict[key] = ''  # обнуляем ключи
+            self.show_connections()  # перезегружаем список
 
 
 class Connection(tk.Toplevel):
@@ -364,7 +349,6 @@ class FilterConnections(Connection):
         # self.db = db  # Передаем класс DB
         self.get_comps_list()  # Список компаний
         self.get_conn_types_list()  # Список типов подключения
-        self.get_connection_filter()
 
     def init_filter_connection(self):
         self.title('Фильтр подключений')
@@ -378,6 +362,11 @@ class FilterConnections(Connection):
                                                       command=self.apply_connection_filter)
         # btn_apply_connection_filter.place(x=145, y=85)
         self.btn_apply_connection_filter.pack(side=tk.RIGHT, pady=7, padx=7)
+        # btn_apply_connection_filter.bind('<Button-1>'  # , lambda event:
+        #                                  # self.app.connection_types.apply_connection_type_filter(
+        #                                  # self.ent_connection_type_name.get(), self.ent_connection_type_description.get())
+        #                                  )
+        # self.btn_apply_connection_filter.bind('<Button-1>', lambda event: self.destroy(), add='+')  # вешаем доп событие
 
         btn_clear_connection_filter = ttk.Button(self.frm_conn_btn, text='Сбросить')
         # btn_clear_connection_filter.place(x=65, y=85)
@@ -385,43 +374,9 @@ class FilterConnections(Connection):
         btn_clear_connection_filter.bind('<Button-1>', lambda event: self.app.connections.clear_connection_filter())
         btn_clear_connection_filter.bind('<Button-1>', lambda event: self.destroy(), add='+')  # вешаем доп событие
 
-    def get_connection_filter(self):
-        """ Процедура получения текущих значений фильтра и вывод на форму """
-        if connections_filter_dict:
-            # Получаем текущие фильтры
-            id_company = connections_filter_dict.get('id_company', '')
-            id_connection_type = connections_filter_dict.get('id_connection_type', '')
-            connection_ip = connections_filter_dict.get('connection_ip', '')
-            connection_description = connections_filter_dict.get('connection_description', '')
-
-            # Компания по фильтру
-            if id_company:
-                index_company = 0
-                for items in self.comps_list:
-                    if items[0] == id_company:
-                        break
-                    index_company += 1
-                self.cmb_comps_list.current(index_company)
-
-            # Тип подключения по фильтру
-            if id_connection_type:
-                index_connection_type = 0
-                for items in self.conn_types_list:
-                    if items[0] == id_connection_type:
-                        break
-                    index_connection_type += 1
-                self.cmb_conn_types_list.current(index_connection_type)
-
-            if connection_ip:
-                self.ent_conn_name.insert(0, connection_ip)
-            if connection_description:
-                self.txt_conn_description.insert(1.0, connection_description)
-
-        # в идеале опивсание преопределить на однострочное поле
-
     def apply_connection_filter(self):
-        """ Процедура применения фильтров """
-        # Получаем компанию с формы
+        """ Прроцедура применения фильтров """
+        # получаем компанию с формы
         if (self.cmb_comps_list.current()) == -1:
             id_company = ''
         else:

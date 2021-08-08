@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as mb
-# import tkinter.ttk as ttk
 # import sqlite3
 
 # импортируем свои модули
@@ -42,22 +41,24 @@ class Main(tk.Frame):
 
         # кнопки меню с картинками
         # 1
-        self.company_img = tk.PhotoImage(file='new_company.gif')
-        btn_open_company = tk.Button(frm_main_toolbar, text='Компании', bg='#d7d8e0', bd=1, pady=1, padx=6,
-                                     compound=tk.BOTTOM, image=self.company_img, command=self.open_companies)
-        btn_open_company.pack(side=tk.LEFT)
-
+        self.companies_img = tk.PhotoImage(file='img/companies.gif')
+        self.btn_open_companies = tk.Button(frm_main_toolbar, text='Компании', width=120, bg='#d7d8e0',
+                                            bd=1, pady=1, padx=6, compound=tk.BOTTOM, image=self.companies_img,
+                                            command=self.open_companies)
+        self.btn_open_companies.pack(side=tk.LEFT)
         # 2
-        self.connections_img = tk.PhotoImage(file='new_company.gif')
-        btn_open_connections = tk.Button(frm_main_toolbar, text='Типы доступов', bg='#d7d8e0', bd=1, pady=1, padx=6,
-                                         compound=tk.BOTTOM, image=self.company_img, command=self.open_connection_types)
-        btn_open_connections.pack(side=tk.LEFT)
-
+        self.connection_types_img = tk.PhotoImage(file='img/connection_types.gif')
+        self.btn_open_connection_types = tk.Button(frm_main_toolbar, text='Типы доступов', width=120, bg='#d7d8e0',
+                                                   bd=1, pady=1, padx=6, compound=tk.BOTTOM,
+                                                   image=self.connection_types_img,
+                                                   command=self.open_connection_types)
+        self.btn_open_connection_types.pack(side=tk.LEFT)
         # 3
-        self.connections_img = tk.PhotoImage(file='new_company.gif')
-        btn_open_connections = tk.Button(frm_main_toolbar, text='Доступы', bg='#d7d8e0', bd=1, pady=1, padx=6,
-                                         compound=tk.BOTTOM, image=self.company_img, command=self.open_connections)
-        btn_open_connections.pack(side=tk.LEFT)
+        self.connections_img = tk.PhotoImage(file='img/connections.gif')
+        self.btn_open_connections = tk.Button(frm_main_toolbar, text='Доступы', width=120, bg='#d7d8e0',
+                                              bd=1, pady=1, padx=6, compound=tk.BOTTOM, image=self.connections_img,
+                                              command=self.open_connections)
+        self.btn_open_connections.pack(side=tk.LEFT)
 
         ## 4
         #self.frm_content_all_clear_img = tk.PhotoImage(file='new_company.gif')
@@ -94,18 +95,36 @@ class Main(tk.Frame):
 
     def open_companies(self):
         # self.pack(fill=tk.BOTH, expand=True)
+        # меняем цвета кнопок
+        #self.btn_open_companies.configure(bg='#d7d8e0')
+        self.btn_open_companies.configure(bg='#A9A9A9')
+        self.btn_open_connection_types.configure(bg='#d7d8e0')
+        self.btn_open_connections.configure(bg='#d7d8e0')
+
         self.clear_frm_content_all()
         # companies.Companies(self.frm_content_all)
         self.companies = companies.Companies(self.frm_content_all, app)
 
     def open_connection_types(self):
         # self.pack(fill=tk.BOTH, expand=True)
+        # меняем цвета кнопок
+        # self.btn_open_companies.configure(bg='#d7d8e0')
+        self.btn_open_connection_types.configure(bg='#A9A9A9')
+        self.btn_open_companies.configure(bg='#d7d8e0')
+        self.btn_open_connections.configure(bg='#d7d8e0')
+
         self.clear_frm_content_all()
         # Companies()
         self.connection_types = connection_types.ConnectionTypes(self.frm_content_all, app)
 
     def open_connections(self):
         # self.pack(fill=tk.BOTH, expand=True)
+        # меняем цвета кнопок
+        # self.btn_open_companies.configure(bg='#d7d8e0')
+        self.btn_open_connections.configure(bg='#A9A9A9')
+        self.btn_open_connection_types.configure(bg='#d7d8e0')
+        self.btn_open_companies.configure(bg='#d7d8e0')
+
         self.clear_frm_content_all()
         # Companies()
         self.connections = connections.Connections(self.frm_content_all, app)

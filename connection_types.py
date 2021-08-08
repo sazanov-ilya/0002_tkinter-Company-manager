@@ -3,13 +3,14 @@ from tkinter import ttk
 import tkinter.messagebox as mb
 #import sqlite3
 
-# импортируем свои модули
+# Импортируем свои модули
 import __general_procedures as gp
 #import db_sqlite3 as db
 
 
-# cловарь фильтров
-connection_types_filter_dict = {'connection_type_name': '', 'connection_type_description': ''}
+# Словарь фильтров
+#connection_types_filter_dict = {'connection_type_name': '', 'connection_type_description': ''}
+connection_types_filter_dict = {}
 
 
 class ConnectionTypes(tk.Frame):
@@ -17,9 +18,9 @@ class ConnectionTypes(tk.Frame):
     def __init__(self, root, app):
         super().__init__(root)
         self.init_connection_types()
-        self.app = app  # Передаем класс Main
-        # self.db = db.DB(root)  # Передаем класс DB
-        self.show_connection_types()  # загружаем данные на форму
+        self.app = app  # Main
+        # self.db = db.DB(root)  # DB
+        self.show_connection_types()  # Загружаем данные на форму
 
     def init_connection_types(self):
         # для отображения на полное окно
@@ -36,10 +37,10 @@ class ConnectionTypes(tk.Frame):
 
         # кнопки
         # 1
-        btn_open_connection_filter = tk.Button(frm_connection_types_toolbar, text='Фильтр',
-                                               bg='#d7d8e0', bd=0, compound=tk.BOTTOM, relief=tk.GROOVE,
-                                               borderwidth=5, pady=2, padx=2, command=self.open_connection_type_filter)
-        btn_open_connection_filter.pack(side=tk.LEFT)
+        self.btn_open_connection_filter = tk.Button(frm_connection_types_toolbar, text='Фильтр', bg='#d7d8e0',
+                                                    bd=0, compound=tk.BOTTOM, relief=tk.GROOVE, borderwidth=5,
+                                                    pady=2, padx=2, command=self.open_connection_type_filter)
+        self.btn_open_connection_filter.pack(side=tk.LEFT)
         # 2
         btn_open_connection_new = tk.Button(frm_connection_types_toolbar, text='Добавить',
                                             bg='#d7d8e0', bd=0, compound=tk.BOTTOM, relief=tk.GROOVE, borderwidth=5,
@@ -131,24 +132,40 @@ class ConnectionTypes(tk.Frame):
             mb.showwarning('Предупреждение', 'Выберите тип подключения')
 
     def open_connection_type_filter(self):
-        """ Открываем форму ввода фильтров скиска типов подключения """
+        """ Открываем форму ввода фильтров для списка типов подключения """
         FilterConnectionTypes(self.app)
 
+    def color_connection_type_filter(self):
+        """ Процедкра смены цвета кнопки Фильтр """
+        if connection_types_filter_dict:  # Если есть фильтры
+            self.btn_open_connection_filter.configure(bg='#A9A9A9')
+        else:
+            self.btn_open_connection_filter.configure(bg='#d7d8e0')
+
     def apply_connection_type_filter(self, connection_type_name, connection_type_description):
-        """ Процедура фильтрации по введенным типу подключения и описанию
+        """ Процедура применения фильтра
         :param connection_type_name: Название типа подключения
         :param connection_type_description: Описание типа подключения
         :return No
         """
-        connection_types_filter_dict['connection_type_name'] = connection_type_name  # сохраняем фильтр в словарь
-        connection_types_filter_dict['connection_type_description'] = connection_type_description
-        self.show_connection_types()  # перезегружаем список
+        connection_types_filter_dict.clear()  # Чистим словарь
+        # Пересоздаем словарь
+        if connection_type_name:
+            connection_types_filter_dict['connection_type_name'] = connection_type_name  # сохраняем фильтр в словарь
+        if connection_type_description:
+            connection_types_filter_dict['connection_type_description'] = connection_type_description
+
+        self.color_connection_type_filter()  # Цвет кнопки фильтра
+        self.show_connection_types()  # Перезегружаем список
 
     def clear_connection_type_filter(self):
         """ Процедура очистки фильтров типов подключения """
-        for key in connection_types_filter_dict:
-            connection_types_filter_dict[key] = ''  # обнуляем ключи
-            self.show_connection_types()     # перезегружаем список компаний
+        # for key in connection_types_filter_dict:
+        #    connection_types_filter_dict[key] = ''  # обнуляем ключи
+        #    self.show_connection_types()     # перезегружаем список компаний
+        connection_types_filter_dict.clear()  # Чистим словарь
+        self.color_connection_type_filter()  # Цвет кнопки фильтра
+        self.show_connection_types()  # Перезегружаем список
 
 
 class ConnectionType(tk.Toplevel):
