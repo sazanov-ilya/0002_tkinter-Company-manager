@@ -86,14 +86,14 @@ class ConnectionTypes(tk.Frame):
         # frm_toolbar.pack(side=tk.TOP, fill=tk.X)
 
     def show_connection_types(self):
-        """ Процедура перезаполнения списка тиов подключения согласно данных БД и фильтров """
-        # очистка таблицы
-        [self.connection_types_list.delete(i) for i in self.connection_types_list.get_children()]
+        """ Процедура заполнения списка тиов подключения согласно данных БД и фильтров """
+        self.color_connection_type_filter()  # цвет кнопки фильтра
+        [self.connection_types_list.delete(i) for i in self.connection_types_list.get_children()]  # очистка таблицы
         # получаем данные согласно фильтров
-        data = self.app.db.get_connection_type_list_by_filter(
-            connection_types_filter_dict.get('connection_type_name', ''),
-            connection_types_filter_dict.get('connection_type_description', ''))
-#        [self.connection_types_list.insert('', 'end', values=row) for row in self.db.c_sqlite3.fetchall()]
+        connection_type_name = connection_types_filter_dict.get('connection_type_name', '')
+        connection_type_description = connection_types_filter_dict.get('connection_type_description', '')
+        data = self.app.db.get_connection_type_list_by_filter(connection_type_name, connection_type_description)
+        # [self.connection_types_list.insert('', 'end', values=row) for row in self.db.c_sqlite3.fetchall()]
         [self.connection_types_list.insert('', 'end', values=row) for row in data]
 
     def delete_connection_types(self):
@@ -148,24 +148,21 @@ class ConnectionTypes(tk.Frame):
         :param connection_type_description: Описание типа подключения
         :return No
         """
-        connection_types_filter_dict.clear()  # Чистим словарь
-        # Пересоздаем словарь
-        if connection_type_name:
-            connection_types_filter_dict['connection_type_name'] = connection_type_name  # сохраняем фильтр в словарь
+        connection_types_filter_dict.clear()  # чистим словарь
+        # пересоздаем словарь
+        if connection_type_name:  # сохраняем фильтр в словарь
+            connection_types_filter_dict['connection_type_name'] = connection_type_name
         if connection_type_description:
             connection_types_filter_dict['connection_type_description'] = connection_type_description
-
-        self.color_connection_type_filter()  # Цвет кнопки фильтра
-        self.show_connection_types()  # Перезегружаем список
+        self.show_connection_types()  # перезегружаем список
 
     def clear_connection_type_filter(self):
         """ Процедура очистки фильтров типов подключения """
         # for key in connection_types_filter_dict:
         #    connection_types_filter_dict[key] = ''  # обнуляем ключи
         #    self.show_connection_types()     # перезегружаем список компаний
-        connection_types_filter_dict.clear()  # Чистим словарь
-        self.color_connection_type_filter()  # Цвет кнопки фильтра
-        self.show_connection_types()  # Перезегружаем список
+        connection_types_filter_dict.clear()  # чистим словарь
+        self.show_connection_types()  # перезегружаем список
 
 
 class ConnectionType(tk.Toplevel):

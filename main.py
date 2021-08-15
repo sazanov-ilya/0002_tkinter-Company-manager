@@ -96,37 +96,31 @@ class Main(tk.Frame):
     def open_companies(self):
         # self.pack(fill=tk.BOTH, expand=True)
         # меняем цвета кнопок
-        #self.btn_open_companies.configure(bg='#d7d8e0')
         self.btn_open_companies.configure(bg='#A9A9A9')
         self.btn_open_connection_types.configure(bg='#d7d8e0')
         self.btn_open_connections.configure(bg='#d7d8e0')
 
         self.clear_frm_content_all()
-        # companies.Companies(self.frm_content_all)
         self.companies = companies.Companies(self.frm_content_all, app)
 
     def open_connection_types(self):
         # self.pack(fill=tk.BOTH, expand=True)
         # меняем цвета кнопок
-        # self.btn_open_companies.configure(bg='#d7d8e0')
         self.btn_open_connection_types.configure(bg='#A9A9A9')
         self.btn_open_companies.configure(bg='#d7d8e0')
         self.btn_open_connections.configure(bg='#d7d8e0')
 
         self.clear_frm_content_all()
-        # Companies()
         self.connection_types = connection_types.ConnectionTypes(self.frm_content_all, app)
 
     def open_connections(self):
         # self.pack(fill=tk.BOTH, expand=True)
         # меняем цвета кнопок
-        # self.btn_open_companies.configure(bg='#d7d8e0')
         self.btn_open_connections.configure(bg='#A9A9A9')
         self.btn_open_connection_types.configure(bg='#d7d8e0')
         self.btn_open_companies.configure(bg='#d7d8e0')
 
         self.clear_frm_content_all()
-        # Companies()
         self.connections = connections.Connections(self.frm_content_all, app)
 
 

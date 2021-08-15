@@ -120,12 +120,13 @@ class Companies(tk.Frame):
             self.context_menu.post(event.x_root, event.y_root)
 
     def show_companies(self):
-        """ Процедура перезаполнения списка компаний согласно данных БД и фильтров """
-        # очистка таблицы
-        [self.companies_table.delete(i) for i in self.companies_table.get_children()]
-        # получаем данные согласно фильтров
-        data = self.app.db.get_company_list_by_filter(companies_filter_dict.get('company_name', ''),
-                                                      companies_filter_dict.get('company_description', ''))
+        """ Процедура вывода списка компаний согласно данных БД и фильтров """
+        self.color_company_filter()  # цвет кнопки фильтра
+        [self.companies_table.delete(i) for i in self.companies_table.get_children()]  # очистка таблицы
+        # получаем данные фильтров
+        company_name = companies_filter_dict.get('company_name', '')
+        company_description = companies_filter_dict.get('company_description', '')
+        data = self.app.db.get_company_list_by_filter(company_name, company_description)
         [self.companies_table.insert('', 'end', values=row) for row in data]
 
     def delete_companies(self):
@@ -179,25 +180,21 @@ class Companies(tk.Frame):
         :param company_description: Описание для компании
         :return none
         """
-        companies_filter_dict.clear()  # Чистим словарь
-        # Пересоздаем словарь
+        companies_filter_dict.clear()  # чистим словарь
+        # пересоздаем словарь
         if company_name:
             companies_filter_dict['company_name'] = company_name
         if company_description:
             companies_filter_dict['company_description'] = company_description
-
-        self.color_company_filter()  # Цвет кнопки фильтра
-        self.show_companies()  # Перезегружаем список компаний
+        self.show_companies()  # список компаний
 
     def clear_company_filter(self):
         """ Очищаем фильтр компаний """
-        #for key in companies_filter_dict:
-        #    companies_filter_dict[key] = ''  # Обнуляем ключи
-        #    self.show_companies()     # Перезегружаем список компаний
+        # for key in companies_filter_dict:
+        #    companies_filter_dict[key] = ''  # обнуляем ключи
+        #    self.show_companies()     # перезегружаем список компаний
         companies_filter_dict.clear()
-
-        self.color_company_filter()  # Цвет кнопки фильтра
-        self.show_companies()  # Перезегружаем список компаний
+        self.show_companies()  # перезегружаем список компаний
 
 
 class Company(tk.Toplevel):

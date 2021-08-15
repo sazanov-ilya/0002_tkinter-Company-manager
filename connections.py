@@ -116,8 +116,8 @@ class Connections(tk.Frame):
 
     def show_connections(self):
         """ Процедура перезаполнения списка тиов подключения согласно данных БД и фильтров """
-        # чистим
-        [self.treeview_list.delete(i) for i in self.treeview_list.get_children()]
+        self.color_connection_filter()  # цвет кнопки фильтра
+        [self.treeview_list.delete(i) for i in self.treeview_list.get_children()]  # чистим таблицу
         # получаем данные фильтра
         id_company = connections_filter_dict.get('id_company', '')
         id_connection_type = connections_filter_dict.get('id_connection_type', '')
@@ -127,8 +127,8 @@ class Connections(tk.Frame):
                                                      id_connection_type,
                                                      connection_ip,
                                                      connection_description)
-        # выводим данные
-        [self.treeview_list.insert('', 'end', values=row) for row in data]
+
+        [self.treeview_list.insert('', 'end', values=row) for row in data]  # выводим список на форму
 
     def delete_connections(self):
         """ Процедура удаления выбранных типов подключения """
@@ -162,7 +162,7 @@ class Connections(tk.Frame):
 
     def color_connection_filter(self):
         """ Процедкра смены цвета кнопки Фильтр """
-        if connections_filter_dict:  # Если есть фильтры
+        if connections_filter_dict:  # если есть фильтры
             self.btn_open_connection_filter.configure(bg='#A9A9A9')
         else:
             self.btn_open_connection_filter.configure(bg='#d7d8e0')
@@ -186,14 +186,14 @@ class Connections(tk.Frame):
         if connection_description:
             connections_filter_dict['connection_description'] = connection_description
 
-        self.color_connection_filter()  # Цвет кнопки фильтра
-        self.show_connections()  # Перезегружаем список
+        # self.color_connection_filter()  # цвет кнопки фильтра
+        self.show_connections()  # перезегружаем список
 
     def clear_connection_filter(self):
         """ Процедура очистки фильтров подключений """
-        connections_filter_dict.clear()  # Чистим словарь
-        self.color_connection_filter()  # Цвет кнопки фильтра
-        self.show_connections()  # Перезегружаем список
+        connections_filter_dict.clear()  # чистим словарь
+        # self.color_connection_filter()  # цвет кнопки фильтра
+        self.show_connections()  # перезегружаем список
 
     def open_logins(self):
         """ Открывааем окно со списком всех логинов выделенного подключения
@@ -239,8 +239,8 @@ class Connection(tk.Toplevel):
         # self.geometry("500x300+300+200")
         self.init_connections()
         self.app = app  # Передаем класс Main
-        #self.get_comps_list()
-        #self.get_conn_types_list()
+        # self.get_comps_list()
+        # self.get_conn_types_list()
 
     # Кнопка печать всего в csv
 
@@ -257,8 +257,8 @@ class Connection(tk.Toplevel):
         self.grab_set()
         self.focus_set()
 
-        self.comps_list = []
-        self.conn_types_list = []
+        # self.comps_list = []
+        # self.conn_types_list = []
 
         # Первая рамка является базовой. На ней располагаются все остальные рамки
         # для отображения на полное окно
@@ -421,7 +421,7 @@ class FilterConnections(Connection):
 
     def apply_connection_filter(self):
         """ Процедура применения фильтров """
-        # Получаем компанию с формы
+        # получаем компанию с формы
         if (self.cmb_comps_list.current()) == -1:
             id_company = ''
         else:

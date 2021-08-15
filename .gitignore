@@ -1,16 +1,15 @@
 # вложеные каталоги .idea
 .idea/
-
 __pycache__/
-db/
+!readme/
 
-
-# файл git.txt
+# файлы
 git.txt
-#баги и доработки.txt
-#git.txt
+!баги и доработки.txt
+!git.txt
 
 .gitignore
 
-# файл БД
+# БД
 сompleted_work.db
+db/
